@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {
   DEFAULT_WEIGHTS,
   SAMPLE_QUEUES,
+  WEIGHT_PROFILES,
   analyzeQueue,
   makeMaintainerBrief,
   parseQueueInput,
@@ -12,6 +13,8 @@ import {
 assert.equal(SAMPLE_QUEUES.length, 4, "four starter queues are available");
 assert.equal(new Set(SAMPLE_QUEUES.map((queue) => queue.id)).size, SAMPLE_QUEUES.length);
 assert.equal(DEFAULT_WEIGHTS.dependencyRisk, 24);
+assert.ok(Object.keys(WEIGHT_PROFILES).length >= 5, "maintainer scoring profiles are available");
+assert.equal(WEIGHT_PROFILES.dependency.weights.dependencyRisk, 70);
 
 const releaseItems = parseQueueInput(sampleToText("release-week"));
 const releaseAnalysis = analyzeQueue({
@@ -123,6 +126,60 @@ const draftPenaltyAnalysis = analyzeQueue({
 });
 assert.ok(draftPenaltyAnalysis.items[0].signals.includes("draft"));
 assert.ok(draftPenaltyAnalysis.items[0].score < 30, "negative draft penalty suppresses draft work");
+
+const profileAnalysis = analyzeQueue({
+  items: [
+    {
+      number: 401,
+      type: "issue",
+      title: "Release blocker missing migration note",
+      labels: ["release-blocker"],
+      createdAt: "2026-06-03T00:00:00Z",
+      updatedAt: "2026-06-04T00:00:00Z"
+    },
+    {
+      number: 402,
+      type: "issue",
+      title: "Renovate lockfile update",
+      labels: ["dependencies"],
+      createdAt: "2026-06-03T00:00:00Z",
+      updatedAt: "2026-06-04T00:00:00Z"
+    }
+  ],
+  weights: WEIGHT_PROFILES.dependency.weights,
+  now: "2026-06-04T12:00:00Z"
+});
+assert.equal(profileAnalysis.topItems[0].ref, "ISSUE #402", "dependency profile can favor dependency queues");
+
+const graphQlInput = parseQueueInput(
+  JSON.stringify({
+    data: {
+      nodes: [
+        {
+          number: 501,
+          url: "https://github.com/example-org/example-repo/pull/501",
+          title: "Renovate dependency lockfile update",
+          labels: { nodes: [{ name: "dependencies" }, { name: "lockfile" }] },
+          assignees: { nodes: [{ login: "maintainer-a" }] },
+          comments: { totalCount: 12 },
+          repository: { nameWithOwner: "example-org/example-repo" },
+          createdAt: "2026-06-01T00:00:00Z",
+          updatedAt: "2026-06-04T00:00:00Z",
+          isDraft: "false",
+          reviewDecision: "REVIEW_REQUIRED"
+        }
+      ]
+    }
+  })
+);
+const graphQlAnalysis = analyzeQueue({
+  items: graphQlInput,
+  now: "2026-06-04T12:00:00Z"
+});
+assert.equal(graphQlAnalysis.items[0].type, "pr");
+assert.equal(graphQlAnalysis.items[0].ref, "PR example-org/example-repo#501");
+assert.equal(graphQlAnalysis.items[0].comments, 12);
+assert.ok(graphQlAnalysis.items[0].signals.includes("dependency risk"));
 
 const objectInput = parseQueueInput(
   JSON.stringify({

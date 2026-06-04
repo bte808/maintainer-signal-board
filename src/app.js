@@ -1,6 +1,7 @@
 import {
   DEFAULT_WEIGHTS,
   SAMPLE_QUEUES,
+  WEIGHT_PROFILES,
   analyzeQueue,
   makeMaintainerBrief,
   parseQueueInput,
@@ -10,6 +11,7 @@ import {
 
 const STORAGE_KEY = "maintainer-signal-board-v1";
 const LOG_KEY = "maintainer-signal-board-log-v1";
+const DEFAULT_PROFILE_ID = "balanced";
 const WEIGHT_FIELDS = [
   { key: "security", label: "Security", min: 0, max: 100 },
   { key: "releaseBlocker", label: "Release blocker", min: 0, max: 100 },
@@ -29,11 +31,14 @@ const elements = {
   sample: document.querySelector("[data-testid='sample-select']"),
   loadSample: document.querySelector("[data-testid='load-sample']"),
   capacity: document.querySelector("[data-testid='capacity-hours']"),
+  profile: document.querySelector("[data-testid='weight-profile']"),
+  applyProfile: document.querySelector("[data-testid='apply-profile']"),
   weights: document.querySelector("[data-testid='scoring-weights']"),
   resetWeights: document.querySelector("[data-testid='reset-weights']"),
   input: document.querySelector("[data-testid='queue-input']"),
   analyze: document.querySelector("[data-testid='analyze']"),
   copyBrief: document.querySelector("[data-testid='copy-brief']"),
+  shareUrl: document.querySelector("[data-testid='share-url']"),
   downloadCsv: document.querySelector("[data-testid='download-csv']"),
   downloadJson: document.querySelector("[data-testid='download-json']"),
   summary: document.querySelector("[data-testid='summary']"),
@@ -69,16 +74,35 @@ function bindControls() {
     runAnalysis("Capacity updated");
   });
 
+  elements.profile.addEventListener("change", () => {
+    state.profileId = elements.profile.value;
+    saveState();
+  });
+
+  elements.applyProfile.addEventListener("click", () => {
+    const profile = WEIGHT_PROFILES[elements.profile.value];
+    if (!profile) return;
+    state.profileId = elements.profile.value;
+    state.weights = { ...profile.weights };
+    renderWeightControls();
+    saveState();
+    runAnalysis("Profile applied");
+  });
+
   elements.weights.addEventListener("input", (event) => {
     const key = event.target.dataset.weightKey;
     if (!key) return;
     state.weights[key] = Number(event.target.value);
+    state.profileId = "custom";
+    elements.profile.value = "custom";
     saveState();
     runAnalysis("Weights updated");
   });
 
   elements.resetWeights.addEventListener("click", () => {
     state.weights = { ...DEFAULT_WEIGHTS };
+    state.profileId = DEFAULT_PROFILE_ID;
+    elements.profile.value = DEFAULT_PROFILE_ID;
     renderWeightControls();
     saveState();
     runAnalysis("Weights reset");
@@ -91,6 +115,7 @@ function bindControls() {
 
   elements.analyze.addEventListener("click", () => runAnalysis("Queue analyzed"));
   elements.copyBrief.addEventListener("click", copyBrief);
+  elements.shareUrl.addEventListener("click", shareUrl);
   elements.downloadCsv.addEventListener("click", () => {
     if (!latestAnalysis) return;
     downloadFile("maintainer-signal-board.csv", toCsv(latestAnalysis), "text/csv");
@@ -111,6 +136,10 @@ function bindControls() {
 
 function renderInitial() {
   elements.sample.innerHTML = SAMPLE_QUEUES.map((sample) => option(sample.id, sample.name, state.sampleId)).join("");
+  elements.profile.innerHTML = [
+    ...Object.entries(WEIGHT_PROFILES).map(([id, profile]) => option(id, profile.name, state.profileId)),
+    option("custom", "Custom weights", state.profileId)
+  ].join("");
   elements.capacity.value = state.capacityHours;
   renderWeightControls();
   elements.input.value = state.queueText;
@@ -240,9 +269,17 @@ async function copyBrief() {
 }
 
 function loadState() {
+  const shared = readSharedState();
+  if (shared) return shared;
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved && typeof saved.queueText === "string") return saved;
+    if (saved && typeof saved.queueText === "string") {
+      return {
+        ...saved,
+        profileId: saved.profileId || "custom",
+        weights: normalizeWeightState(saved.weights)
+      };
+    }
   } catch {
     // Ignore invalid local drafts.
   }
@@ -250,8 +287,30 @@ function loadState() {
     sampleId: SAMPLE_QUEUES[0].id,
     capacityHours: SAMPLE_QUEUES[0].capacityHours,
     queueText: sampleToText(SAMPLE_QUEUES[0].id),
+    profileId: DEFAULT_PROFILE_ID,
     weights: { ...DEFAULT_WEIGHTS }
   };
+}
+
+function readSharedState() {
+  const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "";
+  if (!hash) return null;
+  const encoded = new URLSearchParams(hash).get("board");
+  if (!encoded) return null;
+  try {
+    const json = decodeBase64Url(encoded);
+    const parsed = JSON.parse(json);
+    if (!parsed || parsed.v !== 1 || typeof parsed.queueText !== "string") return null;
+    return {
+      sampleId: parsed.sampleId || SAMPLE_QUEUES[0].id,
+      capacityHours: parsed.capacityHours || SAMPLE_QUEUES[0].capacityHours,
+      queueText: parsed.queueText,
+      profileId: parsed.profileId || "custom",
+      weights: normalizeWeightState(parsed.weights)
+    };
+  } catch {
+    return null;
+  }
 }
 
 function saveState() {
@@ -282,6 +341,40 @@ function normalizeWeightState(input) {
     }
   }
   return weights;
+}
+
+async function shareUrl() {
+  if (state.queueText.length > 9000) {
+    setStatus("Queue too large for URL");
+    return;
+  }
+  const payload = {
+    v: 1,
+    sampleId: state.sampleId,
+    capacityHours: state.capacityHours,
+    profileId: state.profileId,
+    weights: normalizeWeightState(state.weights),
+    queueText: state.queueText
+  };
+  const encoded = encodeBase64Url(JSON.stringify(payload));
+  const url = new URL(window.location.href);
+  url.hash = `board=${encoded}`;
+  window.history.replaceState(null, "", url);
+  try {
+    await navigator.clipboard.writeText(url.href);
+    setStatus("Share URL copied");
+  } catch {
+    setStatus("Share URL ready");
+  }
+}
+
+function encodeBase64Url(value) {
+  return btoa(unescape(encodeURIComponent(value))).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+}
+
+function decodeBase64Url(value) {
+  const base64 = value.replaceAll("-", "+").replaceAll("_", "/").padEnd(Math.ceil(value.length / 4) * 4, "=");
+  return decodeURIComponent(escape(atob(base64)));
 }
 
 function metric(label, value, tone) {

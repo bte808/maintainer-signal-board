@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 - 2026-06-04
+
+- Added scoring preset profiles for balanced, release, review, dependency, and community triage.
+- Added a local-first share URL action that serializes the current queue, capacity, sample, profile, and weights into the URL hash.
+- Improved GitHub export normalization for GraphQL-shaped labels, assignees, comment counts, repository metadata, pull request URLs, and string draft fields.
+- Added `examples/sanitized-maintainer-queue.json` as a reusable synthetic fixture.
+- Added a maintenance log that records the five verified maintenance rounds for this release.
+- Expanded tests, static checks, and browser verification for profiles, share URLs, and normalized GitHub-shaped data.
+
 ## 0.2.0 - 2026-06-04
 
 - Added adjustable scoring weights with local persistence and a reset-to-defaults control.

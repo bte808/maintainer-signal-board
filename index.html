@@ -21,6 +21,7 @@
         <div class="actions">
           <button type="button" data-testid="download-csv">CSV</button>
           <button type="button" data-testid="download-json">JSON</button>
+          <button type="button" data-testid="share-url">Share URL</button>
           <button class="primary" type="button" data-testid="copy-brief">Copy brief</button>
         </div>
       </header>
@@ -43,6 +44,13 @@
         <div class="panel-heading compact-heading">
           <h2>Scoring weights</h2>
           <button type="button" data-testid="reset-weights">Reset defaults</button>
+        </div>
+        <div class="profile-row">
+          <label>
+            <span>Preset profile</span>
+            <select data-testid="weight-profile"></select>
+          </label>
+          <button type="button" data-testid="apply-profile">Apply preset</button>
         </div>
         <div class="weights-grid" data-testid="scoring-weights"></div>
       </section>

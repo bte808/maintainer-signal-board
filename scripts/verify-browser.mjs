@@ -212,11 +212,16 @@ async function runViewportCheck(cdp, viewport) {
       byTest('load-sample').click();
       byTest('capacity-hours').value = '3';
       byTest('capacity-hours').dispatchEvent(new Event('input', { bubbles: true }));
+      byTest('weight-profile').value = 'dependency';
+      byTest('weight-profile').dispatchEvent(new Event('change', { bubbles: true }));
+      byTest('apply-profile').click();
+      const dependencyProfileApplied = byTest('weight-dependency-risk').value === '70';
       byTest('weight-dependency-risk').value = '72';
       byTest('weight-dependency-risk').dispatchEvent(new Event('input', { bubbles: true }));
       byTest('reset-weights').click();
       byTest('analyze').click();
       byTest('add-log').click();
+      byTest('share-url').click();
       const brief = byTest('brief-output').value;
       const pageText = document.body.innerText;
       const copyRect = byTest('copy-brief').getBoundingClientRect();
@@ -225,7 +230,10 @@ async function runViewportCheck(cdp, viewport) {
         metrics: document.querySelectorAll('.metric').length,
         lanes: document.querySelectorAll('.lane').length,
         weightInputs: byTest('scoring-weights').querySelectorAll('input').length,
+        profileOptions: byTest('weight-profile').querySelectorAll('option').length,
+        dependencyProfileApplied,
         dependencyWeightReset: byTest('weight-dependency-risk').value === '24',
+        shareHashReady: window.location.hash.startsWith('#board='),
         queueItems: document.querySelectorAll('.queue-item').length,
         logItems: byTest('evidence-log').querySelectorAll('li').length,
         briefHasDependencyRisk: brief.includes('Dependency risk items'),
@@ -258,7 +266,10 @@ async function runViewportCheck(cdp, viewport) {
     details.metrics === 7 &&
     details.lanes === 7 &&
     details.weightInputs === 9 &&
+    details.profileOptions >= 6 &&
+    details.dependencyProfileApplied &&
     details.dependencyWeightReset &&
+    details.shareHashReady &&
     details.queueItems >= 3 &&
     details.logItems >= 1 &&
     details.briefHasDependencyRisk &&

@@ -135,6 +135,15 @@ h3 {
   padding: 12px;
 }
 
+.profile-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(140px, 180px);
+  gap: 10px;
+  align-items: end;
+  justify-content: start;
+  padding: 12px 12px 0;
+}
+
 .weights-grid label {
   min-width: 0;
 }
@@ -466,6 +475,10 @@ textarea {
 
   .weights-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .profile-row {
+    grid-template-columns: 1fr;
   }
 
   .queue-item div {

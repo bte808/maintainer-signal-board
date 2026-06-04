@@ -13,7 +13,7 @@ Live demo: <https://bte808.github.io/maintainer-signal-board/>
 
 ## Project Status
 
-Maintainer Signal Board is an early `v0.2.0` static OSS tool. It is built to demonstrate a practical maintainer workflow, not to claim broad adoption or critical ecosystem status. The sample data is synthetic, and this project is not affiliated with OpenAI or endorsed by OpenAI.
+Maintainer Signal Board is an early `v0.3.0` static OSS tool. It is built to demonstrate a practical maintainer workflow, not to claim broad adoption or critical ecosystem status. The sample data is synthetic, and this project is not affiliated with OpenAI or endorsed by OpenAI.
 
 Maintenance signals:
 
@@ -22,6 +22,8 @@ Maintenance signals:
 - Static, local-first GitHub Pages demo.
 - Core scoring tests and desktop/mobile browser verification.
 - Adjustable scoring weights for different maintainer styles.
+- Preset scoring profiles for balanced, release, review, dependency, and community queues.
+- Shareable local queue URLs stored in the browser URL hash.
 - Dependency-risk heuristics for dependency and lockfile triage.
 - Maintainer-facing docs for issue triage, PR review, release process, security, contribution, and conduct.
 - GitHub issue templates and PR template for repeatable maintenance.
@@ -45,7 +47,8 @@ It is useful for:
 - Parses pasted JSON arrays or objects with an `items` array.
 - Normalizes common GitHub-style fields such as `number`, `type`, `labels`, `created_at`, `updated_at`, `review_decision`, `mergeable`, `draft`, and `milestone`.
 - Scores queue items from visible signals: security/privacy wording, release blockers, dependency-risk wording, stale age, review state, ownership, discussion load, and merge readiness.
-- Lets maintainers adjust scoring weights and reset to documented defaults.
+- Lets maintainers apply scoring profiles, adjust scoring weights, and reset to documented defaults.
+- Creates shareable local URLs for synthetic or sanitized queues without sending data to a server.
 - Groups work into maintainer lanes:
   - Security and quality.
   - Dependency risk.
@@ -102,7 +105,7 @@ Or an object:
 
 Use synthetic or sanitized data. Do not paste private repository names, secrets, tokens, customer details, or private organization data into public examples.
 
-For a repeatable export flow, use the [GitHub CLI export recipe](docs/github-cli-export.md).
+For a repeatable export flow, use the [GitHub CLI export recipe](docs/github-cli-export.md). A sanitized example fixture is available at [examples/sanitized-maintainer-queue.json](examples/sanitized-maintainer-queue.json).
 
 ## Run Locally
 
@@ -145,15 +148,16 @@ SAVE_SCREENSHOT=docs/demo.png npm run verify:browser
 - [PR review playbook](docs/pr-review-playbook.md)
 - [Release playbook](docs/release-playbook.md)
 - [GitHub CLI export recipe](docs/github-cli-export.md)
+- [Maintenance log](docs/maintenance-log.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 - [Code of conduct](CODE_OF_CONDUCT.md)
 
 ## Roadmap
 
-- Add a shareable local URL hash for small synthetic examples.
 - Add more regression fixtures for edge-case queue data.
-- Add optional preset profiles for review-heavy, release-heavy, and community-heavy queues.
+- Add import presets for common GitHub CLI exports.
+- Add optional compact lane filters for very large queues.
 
 ## Security and Privacy
 

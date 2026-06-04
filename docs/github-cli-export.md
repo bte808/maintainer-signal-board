@@ -82,6 +82,8 @@ jq -s '{ items: (.[0] + .[1]) }' issues.json prs.json > maintainer-queue.json
 
 Open the board, paste `maintainer-queue.json`, and run the analysis.
 
+To test the shape before exporting a real repository queue, paste `examples/sanitized-maintainer-queue.json` into the board. It uses neutral `example-org/example-repo` data and exercises GraphQL-shaped labels, assignees, comment counts, and repository metadata.
+
 ## Sanitizing Public Examples
 
 Before sharing a queue publicly, replace project-specific words with neutral names:

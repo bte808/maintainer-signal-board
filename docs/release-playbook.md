@@ -19,6 +19,8 @@ Check the primary workflow in a local browser or equivalent static preview:
 - A synthetic custom JSON queue can be analyzed.
 - Security, dependency-risk, release, stale, draft, and merge-candidate examples land in expected lanes.
 - Scoring weights can be changed and reset to defaults.
+- Scoring preset profiles can be applied.
+- Share URL updates the URL hash without sending data to a server.
 - Generated maintainer brief is readable.
 - CSV output, when exposed by the UI, keeps stable column names.
 - Mobile layout remains usable.

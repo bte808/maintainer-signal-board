@@ -22,7 +22,9 @@ const required = [
   "docs/issue-triage-playbook.md",
   "docs/release-playbook.md",
   "docs/github-cli-export.md",
+  "docs/maintenance-log.md",
   "docs/demo.png",
+  "examples/sanitized-maintainer-queue.json",
   "favicon.svg"
 ];
 
@@ -42,6 +44,8 @@ assert.ok(html.includes("data-testid=\"sample-select\""), "sample selector is wi
 assert.ok(html.includes("data-testid=\"brief-output\""), "brief output is wired");
 assert.ok(html.includes("data-testid=\"scoring-weights\""), "scoring weight controls are wired");
 assert.ok(html.includes("data-testid=\"reset-weights\""), "weight reset button is wired");
+assert.ok(html.includes("data-testid=\"weight-profile\""), "weight profile selector is wired");
+assert.ok(html.includes("data-testid=\"share-url\""), "share URL action is wired");
 
 const css = await readFile("styles.css", "utf8");
 assert.ok(css.includes("@media (max-width: 760px)"), "mobile breakpoint exists");
@@ -55,10 +59,20 @@ assert.ok(readme.includes("not affiliated with OpenAI"), "README avoids endorsem
 assert.ok(readme.includes("npm run verify:browser"), "README documents browser verification");
 assert.ok(readme.includes("GitHub CLI export recipe"), "README links the sanitized export recipe");
 assert.ok(readme.includes("Dependency risk"), "README documents dependency-risk triage");
+assert.ok(readme.includes("Maintenance log"), "README links the maintenance log");
+assert.ok(readme.includes("sanitized-maintainer-queue.json"), "README links the sanitized example fixture");
 
 const exportDoc = await readFile("docs/github-cli-export.md", "utf8");
 assert.ok(exportDoc.includes("gh issue list"), "export doc includes issue export command");
 assert.ok(exportDoc.includes("gh pr list"), "export doc includes PR export command");
 assert.ok(exportDoc.includes("Do not export secrets"), "export doc includes sanitization warning");
+
+const maintenanceLog = await readFile("docs/maintenance-log.md", "utf8");
+assert.ok(maintenanceLog.includes("v0.3.0 maintenance rounds"), "maintenance log records this release");
+assert.ok(maintenanceLog.includes("Shareable local queue URL"), "maintenance log records share URL work");
+
+const example = JSON.parse(await readFile("examples/sanitized-maintainer-queue.json", "utf8"));
+assert.ok(Array.isArray(example.items), "sanitized example has items");
+assert.ok(JSON.stringify(example).includes("example-org/example-repo"), "sanitized example uses neutral repo names");
 
 console.log("static check ok");

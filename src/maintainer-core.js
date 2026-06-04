@@ -13,6 +13,55 @@ export const DEFAULT_WEIGHTS = Object.freeze({
   draftPenalty: -18
 });
 
+export const WEIGHT_PROFILES = Object.freeze({
+  balanced: {
+    name: "Balanced maintainer",
+    weights: { ...DEFAULT_WEIGHTS }
+  },
+  release: {
+    name: "Release cutdown",
+    weights: {
+      ...DEFAULT_WEIGHTS,
+      releaseBlocker: 62,
+      dependencyRisk: 30,
+      needsReview: 16,
+      stale: 10,
+      draftPenalty: -30
+    }
+  },
+  review: {
+    name: "Review queue",
+    weights: {
+      ...DEFAULT_WEIGHTS,
+      needsReview: 46,
+      mergeCandidate: 32,
+      discussionHeavy: 18,
+      needsOwner: 14
+    }
+  },
+  dependency: {
+    name: "Dependency risk",
+    weights: {
+      ...DEFAULT_WEIGHTS,
+      dependencyRisk: 70,
+      security: 45,
+      releaseBlocker: 28,
+      stale: 20
+    }
+  },
+  community: {
+    name: "Community follow-up",
+    weights: {
+      ...DEFAULT_WEIGHTS,
+      needsOwner: 28,
+      discussionHeavy: 24,
+      stale: 42,
+      old: 16,
+      releaseBlocker: 18
+    }
+  }
+});
+
 export const SAMPLE_QUEUES = [
   {
     id: "release-week",
@@ -249,7 +298,7 @@ export function parseQueueInput(raw) {
   const text = String(raw || "").trim();
   if (!text) return [];
   const parsed = JSON.parse(text);
-  const source = Array.isArray(parsed) ? parsed : parsed.items || parsed.nodes || parsed.data || [];
+  const source = Array.isArray(parsed) ? parsed : parsed.items || parsed.nodes || parsed.data?.nodes || parsed.data || [];
   if (!Array.isArray(source)) {
     throw new Error("Expected a JSON array or an object with an items array.");
   }
@@ -380,17 +429,19 @@ export function sampleToText(sampleId) {
 }
 
 function normalizeItem(item, index, now) {
-  const labels = normalizeLabels(item.labels || item.labelNames || item.tags || []);
+  const labels = normalizeLabels(item.labels ?? item.labelNames ?? item.tags ?? []);
   const type = normalizeType(item);
   const createdAt = parseDate(item.createdAt || item.created_at || item.created || item.createdDate, now);
   const updatedAt = parseDate(item.updatedAt || item.updated_at || item.updated || item.updatedDate, createdAt);
-  const assignees = normalizePeople(item.assignees || item.assignee || []);
-  const number = Number(item.number || item.id || index + 1);
+  const assignees = normalizePeople(item.assignees ?? item.assignee ?? []);
+  const number = Number(item.number ?? item.issueNumber ?? item.pullRequestNumber ?? item.id ?? index + 1);
   const state = String(item.state || "open").toLowerCase();
+  const repository = normalizeRepository(item.repository || item.repositoryName || item.repo || "");
+  const prefix = type === "pr" ? "PR" : "ISSUE";
 
   return {
     number,
-    ref: `${type === "pr" ? "PR" : "ISSUE"} #${number}`,
+    ref: repository ? `${prefix} ${repository}#${number}` : `${prefix} #${number}`,
     type,
     state,
     title: String(item.title || item.name || `Untitled item ${index + 1}`).trim(),
@@ -400,12 +451,13 @@ function normalizeItem(item, index, now) {
     updatedAt: updatedAt.toISOString(),
     ageDays: daysBetween(createdAt, now),
     staleDays: daysBetween(updatedAt, now),
-    comments: clampNumber(item.comments ?? item.commentCount ?? item.commentsCount, 0, 0, 10000),
+    comments: clampNumber(countValue(item.comments ?? item.commentCount ?? item.commentsCount), 0, 0, 10000),
     author: normalizePerson(item.author || item.user || item.createdBy || ""),
     assignees,
     reviewDecision: String(item.reviewDecision || item.review_decision || "").toUpperCase(),
     mergeable: item.mergeable ?? null,
-    draft: Boolean(item.draft || item.isDraft),
+    draft: normalizeBoolean(item.draft ?? item.isDraft),
+    repository,
     milestone: normalizeMilestone(item.milestone)
   };
 }
@@ -569,6 +621,9 @@ function normalizeWeights(input = {}) {
 }
 
 function normalizeLabels(labels) {
+  if (labels?.nodes) return normalizeLabels(labels.nodes);
+  if (labels?.edges) return normalizeLabels(labels.edges.map((edge) => edge.node || edge));
+  if (typeof labels === "string" && labels.includes(",")) return normalizeLabels(labels.split(","));
   if (!Array.isArray(labels)) return normalizeLabels([labels]);
   return labels
     .map((label) => {
@@ -582,11 +637,15 @@ function normalizeLabels(labels) {
 function normalizeType(item) {
   const raw = String(item.type || item.kind || "").toLowerCase();
   if (raw.includes("pull") || raw === "pr") return "pr";
-  if (item.pull_request || item.reviewDecision || item.isDraft || item.draft) return "pr";
+  const url = String(item.url || item.htmlUrl || item.html_url || "").toLowerCase();
+  if (url.includes("/pull/")) return "pr";
+  if (item.pull_request || item.pullRequest || item.reviewDecision || item.isDraft || item.draft) return "pr";
   return "issue";
 }
 
 function normalizePeople(value) {
+  if (value?.nodes) return normalizePeople(value.nodes);
+  if (value?.edges) return normalizePeople(value.edges.map((edge) => edge.node || edge));
   const list = Array.isArray(value) ? value : value ? [value] : [];
   return list.map(normalizePerson).filter(Boolean);
 }
@@ -601,6 +660,24 @@ function normalizeMilestone(value) {
   if (!value) return "";
   if (typeof value === "string") return value;
   return value.title || value.name || "";
+}
+
+function normalizeRepository(value) {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return value.nameWithOwner || value.fullName || value.full_name || value.name || "";
+}
+
+function normalizeBoolean(value) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") return value.toLowerCase() === "true";
+  return Boolean(value);
+}
+
+function countValue(value) {
+  if (typeof value === "number") return value;
+  if (value && typeof value === "object") return value.totalCount ?? value.count ?? value.length;
+  return value;
 }
 
 function parseDate(value, fallback) {

@@ -1,0 +1,46 @@
+{
+  "items": [
+    {
+      "number": 501,
+      "url": "https://github.com/example-org/example-repo/pull/501",
+      "title": "Renovate dependency lockfile update",
+      "labels": {
+        "nodes": [
+          { "name": "dependencies" },
+          { "name": "lockfile" }
+        ]
+      },
+      "assignees": {
+        "nodes": [{ "login": "maintainer-a" }]
+      },
+      "comments": { "totalCount": 12 },
+      "repository": { "nameWithOwner": "example-org/example-repo" },
+      "createdAt": "2026-06-01T00:00:00Z",
+      "updatedAt": "2026-06-04T00:00:00Z",
+      "isDraft": false,
+      "reviewDecision": "REVIEW_REQUIRED"
+    },
+    {
+      "number": 502,
+      "type": "issue",
+      "title": "Release blocker: migration note missing rollback step",
+      "labels": ["release-blocker", "docs"],
+      "comments": 3,
+      "repository": "example-org/example-repo",
+      "createdAt": "2026-06-02T00:00:00Z",
+      "updatedAt": "2026-06-04T00:00:00Z"
+    },
+    {
+      "number": 503,
+      "type": "pull_request",
+      "title": "Approved README clarification",
+      "labels": ["docs"],
+      "comments": 2,
+      "assignees": ["docs-owner"],
+      "createdAt": "2026-06-03T00:00:00Z",
+      "updatedAt": "2026-06-04T00:00:00Z",
+      "reviewDecision": "APPROVED",
+      "mergeable": true
+    }
+  ]
+}
