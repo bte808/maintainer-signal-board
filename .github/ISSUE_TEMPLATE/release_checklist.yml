@@ -1,0 +1,48 @@
+name: Release checklist
+description: Track a small static release of Maintainer Signal Board.
+title: "[Release]: "
+labels: ["release", "triage"]
+body:
+  - type: input
+    id: target
+    attributes:
+      label: Release target
+      placeholder: "Example: v0.1.0 or docs refresh"
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Release summary
+      description: What maintainer-facing change is being released?
+    validations:
+      required: true
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: No unresolved P0/P1 issue is blocking this release.
+          required: true
+        - label: Sample data remains synthetic.
+          required: true
+        - label: Release notes avoid adoption, endorsement, and remote-service claims.
+          required: true
+        - label: No secrets, tokens, private repository names, or private organization names are included.
+          required: true
+  - type: checkboxes
+    id: qa
+    attributes:
+      label: Manual QA
+      options:
+        - label: Built-in synthetic sample loads.
+        - label: Empty input is handled.
+        - label: Synthetic custom JSON can be analyzed.
+        - label: Security and release examples land in expected lanes.
+        - label: Maintainer brief is readable.
+        - label: CSV output is stable when exposed.
+        - label: Mobile layout is usable.
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes or known limitations

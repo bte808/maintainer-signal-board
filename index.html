@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A local-first maintainer triage board for issues, pull requests, release blockers, and review load."
+    />
+    <title>Maintainer Signal Board</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Local-first maintainer console</p>
+          <h1>Maintainer Signal Board</h1>
+        </div>
+        <div class="actions">
+          <button type="button" data-testid="download-csv">CSV</button>
+          <button type="button" data-testid="download-json">JSON</button>
+          <button class="primary" type="button" data-testid="copy-brief">Copy brief</button>
+        </div>
+      </header>
+
+      <section class="control-band" aria-label="Queue controls">
+        <label>
+          <span>Sample queue</span>
+          <select data-testid="sample-select"></select>
+        </label>
+        <button type="button" data-testid="load-sample">Load sample</button>
+        <label>
+          <span>Maintainer hours today</span>
+          <input data-testid="capacity-hours" type="number" min="1" max="80" step="0.5" inputmode="decimal" />
+        </label>
+        <button class="primary" type="button" data-testid="analyze">Analyze</button>
+        <span class="status" data-testid="status" role="status">Ready</span>
+      </section>
+
+      <section class="metrics" data-testid="summary" aria-label="Summary"></section>
+
+      <section class="workspace">
+        <section class="input-panel" aria-label="Queue input">
+          <div class="panel-heading">
+            <h2>Queue JSON</h2>
+            <button type="button" data-testid="add-log">Log top action</button>
+          </div>
+          <textarea data-testid="queue-input" spellcheck="false"></textarea>
+          <div class="log-panel">
+            <div class="panel-heading compact-heading">
+              <h2>Evidence log</h2>
+              <button type="button" data-testid="clear-log">Clear</button>
+            </div>
+            <ul data-testid="evidence-log"></ul>
+          </div>
+        </section>
+
+        <section class="board-panel" aria-label="Maintainer board">
+          <div class="panel-heading">
+            <h2>Next actions</h2>
+          </div>
+          <ol class="next-actions" data-testid="next-actions"></ol>
+          <div class="lanes" data-testid="lanes"></div>
+        </section>
+
+        <aside class="brief-panel" aria-label="Maintainer brief">
+          <div class="panel-heading">
+            <h2>Brief</h2>
+          </div>
+          <textarea data-testid="brief-output" readonly spellcheck="false"></textarea>
+        </aside>
+      </section>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>

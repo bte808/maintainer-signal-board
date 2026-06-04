@@ -1,0 +1,157 @@
+# Maintainer Signal Board
+
+[![Live demo](https://img.shields.io/badge/demo-GitHub%20Pages-0969da)](https://bte808.github.io/maintainer-signal-board/)
+![Runtime dependencies](https://img.shields.io/badge/runtime%20deps-0-2ea44f)
+![Static site](https://img.shields.io/badge/site-static-6f42c1)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+Maintainer Signal Board is a local-first triage board for open-source maintainers. Paste issue or pull request JSON, or load a synthetic sample queue, and it turns the queue into maintainer lanes, review load estimates, release blockers, security and quality signals, and a copy-ready Markdown brief.
+
+Live demo: <https://bte808.github.io/maintainer-signal-board/>
+
+![Maintainer Signal Board demo](docs/demo.png)
+
+## Project Status
+
+Maintainer Signal Board is an early `v0.1.0` static OSS tool. It is built to demonstrate a practical maintainer workflow, not to claim broad adoption or critical ecosystem status. The sample data is synthetic, and this project is not affiliated with OpenAI or endorsed by OpenAI.
+
+Maintenance signals:
+
+- MIT licensed.
+- No runtime dependencies.
+- Static, local-first GitHub Pages demo.
+- Core scoring tests and desktop/mobile browser verification.
+- Maintainer-facing docs for issue triage, PR review, release process, security, contribution, and conduct.
+- GitHub issue templates and PR template for repeatable maintenance.
+
+## Why This Exists
+
+Open-source maintainers often carry the invisible work: deciding which issues need owners, which pull requests need review, which release blockers matter today, and which reports touch security or code quality. Maintainer Signal Board makes that workload visible without asking for repository tokens or hosted telemetry.
+
+It is useful for:
+
+- Pull request review queues.
+- Issue triage and stale discussion follow-up.
+- Release blocker checks.
+- Security and privacy hardening intake.
+- Copy-ready maintainer status notes.
+- Small OSS projects that want a low-friction review ritual.
+
+## What It Does
+
+- Parses pasted JSON arrays or objects with an `items` array.
+- Normalizes common GitHub-style fields such as `number`, `type`, `labels`, `created_at`, `updated_at`, `review_decision`, `mergeable`, `draft`, and `milestone`.
+- Scores queue items from visible signals: security, release blockers, stale age, review state, ownership, discussion load, and merge readiness.
+- Groups work into maintainer lanes:
+  - Security and quality.
+  - Release blockers.
+  - Needs review.
+  - Ready to merge.
+  - Community follow-up.
+  - Backlog shaping.
+- Estimates maintainer minutes and compares the queue to today's stated review capacity.
+- Exports Markdown, CSV, and JSON locally.
+- Keeps a small evidence log in `localStorage` so a maintainer can record the top action taken.
+
+## Demo Samples
+
+The built-in queues are synthetic:
+
+- Release week queue.
+- Security patch queue.
+- Community backlog.
+
+They are intentionally small and readable. They are fixtures for workflow review, not claims about real repository usage.
+
+## Input Shape
+
+Paste either an array:
+
+```json
+[
+  {
+    "number": 128,
+    "type": "pull_request",
+    "title": "Fix migration rollback on empty config",
+    "labels": ["regression", "release-blocker"],
+    "created_at": "2026-05-26T09:15:00Z",
+    "updated_at": "2026-06-03T11:20:00Z",
+    "comments": 8,
+    "review_decision": "CHANGES_REQUESTED",
+    "mergeable": false,
+    "milestone": "v2.4"
+  }
+]
+```
+
+Or an object:
+
+```json
+{
+  "items": []
+}
+```
+
+Use synthetic or sanitized data. Do not paste private repository names, secrets, tokens, customer details, or private organization data into public examples.
+
+## Run Locally
+
+```bash
+npm test
+npm run verify:browser
+npm run serve
+```
+
+Then open:
+
+```text
+http://localhost:5184/
+```
+
+Because the app is static, any local static server works.
+
+## Verification
+
+Local checks:
+
+```bash
+npm test
+npm run verify:browser
+npm run validate
+git diff --check
+```
+
+`npm test` runs the core queue-analysis tests plus static wiring checks. `npm run verify:browser` starts a local server, opens temporary headless Chrome sessions, loads the board at desktop and `390 x 844` mobile sizes, loads samples, analyzes queue data, checks generated briefs, logs an action, and fails on horizontal overflow.
+
+To refresh the README screenshot:
+
+```bash
+SAVE_SCREENSHOT=docs/demo.png npm run verify:browser
+```
+
+## Maintainer Docs
+
+- [Issue triage playbook](docs/issue-triage-playbook.md)
+- [PR review playbook](docs/pr-review-playbook.md)
+- [Release playbook](docs/release-playbook.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+- [Code of conduct](CODE_OF_CONDUCT.md)
+
+## Roadmap
+
+- Add a GitHub CLI snippet that exports sanitized queue JSON.
+- Add a shareable local URL hash for small synthetic examples.
+- Add adjustable scoring weights for different maintainer styles.
+- Add a dependency-risk lane for release and security checks.
+- Add more regression fixtures for edge-case queue data.
+
+## Security and Privacy
+
+Maintainer Signal Board does not require an account, API key, backend service, analytics script, or hosted font. Draft input and evidence-log entries stay in browser `localStorage`; exports are generated locally.
+
+For security-sensitive reports, follow [SECURITY.md](SECURITY.md) and avoid posting sensitive details publicly.
+
+## License
+
+MIT

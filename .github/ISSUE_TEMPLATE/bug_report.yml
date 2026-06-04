@@ -1,0 +1,62 @@
+name: Bug report
+description: Report behavior that breaks or confuses the maintainer signal workflow.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please use synthetic data only. Do not include secrets, tokens, private repository names, or private organization names.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Workflow
+      options:
+        - Built-in synthetic sample
+        - Custom JSON import
+        - Scoring or lane assignment
+        - Maintainer brief
+        - CSV export
+        - UI or accessibility
+        - Docs or templates
+    validations:
+      required: true
+  - type: textarea
+    id: input
+    attributes:
+      label: Synthetic input
+      description: Paste a reduced synthetic JSON example when relevant.
+      render: json
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser or environment
+      placeholder: "Example: Safari 18 on macOS, local static preview"
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: I used synthetic data and removed secrets or private identifiers.
+          required: true
+        - label: I am not reporting an emergency vulnerability in this public issue.
+          required: true

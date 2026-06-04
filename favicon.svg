@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Maintainer Signal Board">
+  <rect width="64" height="64" rx="12" fill="#19211d"/>
+  <path d="M16 18h32v7H16z" fill="#f5f6f1"/>
+  <path d="M16 30h20v7H16z" fill="#2f62c2"/>
+  <path d="M40 30h8v7h-8z" fill="#13745a"/>
+  <path d="M16 42h12v7H16z" fill="#b33d4a"/>
+  <path d="M32 42h16v7H32z" fill="#9a6200"/>
+</svg>

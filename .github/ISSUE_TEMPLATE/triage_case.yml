@@ -1,0 +1,52 @@
+name: Triage case
+description: Ask maintainers to classify, prioritize, or shape a queue signal.
+title: "[Triage]: "
+labels: ["triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for maintainer workflow questions. Keep examples synthetic and avoid private repository or organization data.
+  - type: textarea
+    id: case
+    attributes:
+      label: Case
+      description: What decision do you need help making?
+    validations:
+      required: true
+  - type: dropdown
+    id: signal
+    attributes:
+      label: Main signal
+      options:
+        - Security or privacy
+        - Release blocker
+        - Needs review
+        - Ready to merge
+        - Stale discussion
+        - Backlog shaping
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: synthetic_items
+    attributes:
+      label: Synthetic queue item data
+      description: Include labels, age, review state, milestone, owner, and comments if relevant.
+      render: json
+  - type: textarea
+    id: desired_outcome
+    attributes:
+      label: Desired outcome
+      description: What priority, lane, wording, or next action would be useful?
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: The example uses synthetic data.
+          required: true
+        - label: This is not a security vulnerability report.
+          required: true

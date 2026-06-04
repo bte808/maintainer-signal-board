@@ -1,0 +1,24 @@
+{
+  "name": "maintainer-signal-board",
+  "version": "0.1.0",
+  "description": "Local-first maintainer triage board for issues, pull requests, release blockers, and review load.",
+  "type": "module",
+  "private": false,
+  "scripts": {
+    "test": "node tests/core.test.mjs && npm run check",
+    "check": "node scripts/check.mjs",
+    "verify:browser": "node scripts/verify-browser.mjs",
+    "validate": "npm test && npm run verify:browser",
+    "serve": "python3 -m http.server 5184"
+  },
+  "keywords": [
+    "open-source",
+    "maintainer-tools",
+    "issue-triage",
+    "pull-request-review",
+    "release-management",
+    "local-first",
+    "static-site"
+  ],
+  "license": "MIT"
+}
