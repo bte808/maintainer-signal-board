@@ -43,6 +43,8 @@ const elements = {
   downloadJson: document.querySelector("[data-testid='download-json']"),
   summary: document.querySelector("[data-testid='summary']"),
   actions: document.querySelector("[data-testid='next-actions']"),
+  laneFilter: document.querySelector("[data-testid='lane-filter']"),
+  compactView: document.querySelector("[data-testid='compact-view']"),
   lanes: document.querySelector("[data-testid='lanes']"),
   brief: document.querySelector("[data-testid='brief-output']"),
   log: document.querySelector("[data-testid='evidence-log']"),
@@ -114,6 +116,18 @@ function bindControls() {
   });
 
   elements.analyze.addEventListener("click", () => runAnalysis("Queue analyzed"));
+  elements.laneFilter.addEventListener("change", () => {
+    state.laneFilter = elements.laneFilter.value;
+    saveState();
+    if (latestAnalysis) renderAnalysis(latestAnalysis);
+    setStatus("Lane filter updated");
+  });
+  elements.compactView.addEventListener("change", () => {
+    state.compactView = elements.compactView.checked;
+    saveState();
+    if (latestAnalysis) renderAnalysis(latestAnalysis);
+    setStatus(state.compactView ? "Compact view on" : "Compact view off");
+  });
   elements.copyBrief.addEventListener("click", copyBrief);
   elements.shareUrl.addEventListener("click", shareUrl);
   elements.downloadCsv.addEventListener("click", () => {
@@ -141,6 +155,7 @@ function renderInitial() {
     option("custom", "Custom weights", state.profileId)
   ].join("");
   elements.capacity.value = state.capacityHours;
+  elements.compactView.checked = Boolean(state.compactView);
   renderWeightControls();
   elements.input.value = state.queueText;
   runAnalysis("Ready");
@@ -180,8 +195,25 @@ function renderAnalysis(analysis) {
   ].join("");
 
   elements.actions.innerHTML = analysis.nextActions.map((action) => `<li>${escapeHtml(action)}</li>`).join("");
-  elements.lanes.innerHTML = analysis.lanes.map(renderLane).join("");
+  renderLaneControls(analysis);
+  const visibleLanes = state.laneFilter === "all"
+    ? analysis.lanes
+    : analysis.lanes.filter((lane) => lane.name === state.laneFilter);
+  elements.lanes.classList.toggle("is-compact", Boolean(state.compactView));
+  elements.lanes.innerHTML = visibleLanes.map(renderLane).join("");
   elements.brief.value = makeMaintainerBrief(analysis);
+}
+
+function renderLaneControls(analysis) {
+  const laneNames = analysis.lanes.map((lane) => lane.name);
+  if (!laneNames.includes(state.laneFilter)) {
+    state.laneFilter = "all";
+  }
+  elements.laneFilter.innerHTML = [
+    option("all", "All lanes", state.laneFilter),
+    ...analysis.lanes.map((lane) => option(lane.name, `${lane.name} (${lane.items.length})`, state.laneFilter))
+  ].join("");
+  elements.compactView.checked = Boolean(state.compactView);
 }
 
 function renderLane(lane) {
@@ -277,7 +309,9 @@ function loadState() {
       return {
         ...saved,
         profileId: saved.profileId || "custom",
-        weights: normalizeWeightState(saved.weights)
+        weights: normalizeWeightState(saved.weights),
+        laneFilter: saved.laneFilter || "all",
+        compactView: Boolean(saved.compactView)
       };
     }
   } catch {
@@ -288,7 +322,9 @@ function loadState() {
     capacityHours: SAMPLE_QUEUES[0].capacityHours,
     queueText: sampleToText(SAMPLE_QUEUES[0].id),
     profileId: DEFAULT_PROFILE_ID,
-    weights: { ...DEFAULT_WEIGHTS }
+    weights: { ...DEFAULT_WEIGHTS },
+    laneFilter: "all",
+    compactView: false
   };
 }
 
@@ -306,7 +342,9 @@ function readSharedState() {
       capacityHours: parsed.capacityHours || SAMPLE_QUEUES[0].capacityHours,
       queueText: parsed.queueText,
       profileId: parsed.profileId || "custom",
-      weights: normalizeWeightState(parsed.weights)
+      weights: normalizeWeightState(parsed.weights),
+      laneFilter: parsed.laneFilter || "all",
+      compactView: Boolean(parsed.compactView)
     };
   } catch {
     return null;
@@ -354,6 +392,8 @@ async function shareUrl() {
     capacityHours: state.capacityHours,
     profileId: state.profileId,
     weights: normalizeWeightState(state.weights),
+    laneFilter: state.laneFilter,
+    compactView: Boolean(state.compactView),
     queueText: state.queueText
   };
   const encoded = encodeBase64Url(JSON.stringify(payload));

@@ -49,6 +49,7 @@ It is useful for:
 - Scores queue items from visible signals: security/privacy wording, release blockers, dependency-risk wording, stale age, review state, ownership, discussion load, and merge readiness.
 - Lets maintainers apply scoring profiles, adjust scoring weights, and reset to documented defaults.
 - Creates shareable local URLs for synthetic or sanitized queues without sending data to a server.
+- Filters the board to a single maintainer lane and offers a compact view for larger queues.
 - Groups work into maintainer lanes:
   - Security and quality.
   - Dependency risk.
@@ -103,6 +104,8 @@ Or an object:
 }
 ```
 
+The board also accepts mixed GitHub CLI preset objects with separate `issues` and `pullRequests` arrays. See the [GitHub CLI export recipe](docs/github-cli-export.md) for examples.
+
 Use synthetic or sanitized data. Do not paste private repository names, secrets, tokens, customer details, or private organization data into public examples.
 
 For a repeatable export flow, use the [GitHub CLI export recipe](docs/github-cli-export.md). A sanitized example fixture is available at [examples/sanitized-maintainer-queue.json](examples/sanitized-maintainer-queue.json).
@@ -134,7 +137,7 @@ npm run validate
 git diff --check
 ```
 
-`npm test` runs the core queue-analysis tests plus static wiring checks. `npm run verify:browser` starts a local server, opens temporary headless Chrome sessions, loads the board at desktop and `390 x 844` mobile sizes, loads samples, analyzes queue data, checks generated briefs, logs an action, and fails on horizontal overflow.
+`npm test` runs the core queue-analysis tests plus static wiring checks. `npm run verify:browser` starts a local server, opens temporary headless Chrome sessions, loads the board at desktop and `390 x 844` mobile sizes, loads samples, analyzes queue data, checks lane filtering, toggles compact view, checks generated briefs, logs an action, and fails on horizontal overflow.
 
 To refresh the README screenshot:
 
@@ -155,9 +158,9 @@ SAVE_SCREENSHOT=docs/demo.png npm run verify:browser
 
 ## Roadmap
 
-- Add more regression fixtures for edge-case queue data.
-- Add import presets for common GitHub CLI exports.
-- Add optional compact lane filters for very large queues.
+- Add keyboard shortcuts for repeated lane review.
+- Add optional saved view presets for recurring maintainer rituals.
+- Add more synthetic sample queues for release, security, and dependency review drills.
 
 ## Security and Privacy
 

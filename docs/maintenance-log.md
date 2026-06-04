@@ -2,6 +2,27 @@
 
 This log records verified maintainer rounds for small public releases. It is intentionally factual: no adoption claims, no external endorsement claims, and no private queue data.
 
+## 2026-06-05 - compact lane filter maintenance
+
+1. Lane view controls
+   - Added a lane filter so maintainers can focus on one lane while preserving the default all-lanes board.
+   - Added a compact view toggle for denser review sessions on larger synthetic queues.
+
+2. Local-first state
+   - Persisted lane filter and compact view state locally.
+   - Included the view settings in share URLs without sending queue data to a server.
+
+3. Browser verification
+   - Updated browser checks to exercise lane filtering, compact view, desktop rendering, and `390 x 844` mobile overflow protection.
+
+Verification for this round:
+
+```bash
+npm test
+npm run validate
+git diff --check
+```
+
 ## 2026-06-05 - regression fixture maintenance
 
 1. Edge-case queue fixture

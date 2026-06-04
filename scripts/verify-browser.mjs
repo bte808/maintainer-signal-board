@@ -220,6 +220,18 @@ async function runViewportCheck(cdp, viewport) {
       byTest('weight-dependency-risk').dispatchEvent(new Event('input', { bubbles: true }));
       byTest('reset-weights').click();
       byTest('analyze').click();
+      byTest('lane-filter').value = 'all';
+      byTest('lane-filter').dispatchEvent(new Event('change', { bubbles: true }));
+      byTest('compact-view').checked = false;
+      byTest('compact-view').dispatchEvent(new Event('change', { bubbles: true }));
+      const lanesBeforeFilter = document.querySelectorAll('.lane').length;
+      const pageTextBeforeFilter = document.body.innerText;
+      byTest('lane-filter').value = 'Dependency risk';
+      byTest('lane-filter').dispatchEvent(new Event('change', { bubbles: true }));
+      const filteredLanes = document.querySelectorAll('.lane').length;
+      const filteredItems = document.querySelectorAll('.queue-item').length;
+      byTest('compact-view').checked = true;
+      byTest('compact-view').dispatchEvent(new Event('change', { bubbles: true }));
       byTest('add-log').click();
       byTest('share-url').click();
       const brief = byTest('brief-output').value;
@@ -228,7 +240,11 @@ async function runViewportCheck(cdp, viewport) {
       return {
         title: document.title,
         metrics: document.querySelectorAll('.metric').length,
-        lanes: document.querySelectorAll('.lane').length,
+        lanes: lanesBeforeFilter,
+        filteredLanes,
+        filteredItems,
+        compactEnabled: byTest('lanes').classList.contains('is-compact'),
+        laneFilterValue: byTest('lane-filter').value,
         weightInputs: byTest('scoring-weights').querySelectorAll('input').length,
         profileOptions: byTest('weight-profile').querySelectorAll('option').length,
         dependencyProfileApplied,
@@ -238,7 +254,7 @@ async function runViewportCheck(cdp, viewport) {
         logItems: byTest('evidence-log').querySelectorAll('li').length,
         briefHasDependencyRisk: brief.includes('Dependency risk items'),
         briefHasNextActions: brief.includes('## Next actions'),
-        pageHasP0: pageText.includes('P0'),
+        pageHasP0: pageTextBeforeFilter.includes('P0'),
         pageHasDependencyRisk: pageText.includes('Dependency risk'),
         pageHasCapacity: pageText.includes('over capacity') || pageText.includes('fits'),
         overflow: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth),
@@ -265,6 +281,10 @@ async function runViewportCheck(cdp, viewport) {
     details.title.includes("Maintainer Signal Board") &&
     details.metrics === 7 &&
     details.lanes === 7 &&
+    details.filteredLanes === 1 &&
+    details.filteredItems >= 3 &&
+    details.compactEnabled &&
+    details.laneFilterValue === "Dependency risk" &&
     details.weightInputs === 9 &&
     details.profileOptions >= 6 &&
     details.dependencyProfileApplied &&

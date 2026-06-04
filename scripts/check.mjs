@@ -50,9 +50,12 @@ assert.ok(html.includes("data-testid=\"scoring-weights\""), "scoring weight cont
 assert.ok(html.includes("data-testid=\"reset-weights\""), "weight reset button is wired");
 assert.ok(html.includes("data-testid=\"weight-profile\""), "weight profile selector is wired");
 assert.ok(html.includes("data-testid=\"share-url\""), "share URL action is wired");
+assert.ok(html.includes("data-testid=\"lane-filter\""), "lane filter is wired");
+assert.ok(html.includes("data-testid=\"compact-view\""), "compact view toggle is wired");
 
 const css = await readFile("styles.css", "utf8");
 assert.ok(css.includes("@media (max-width: 760px)"), "mobile breakpoint exists");
+assert.ok(css.includes(".lanes.is-compact"), "compact lane layout exists");
 assert.ok(!css.includes("letter-spacing: -"), "no negative letter spacing");
 
 const readme = await readFile("README.md", "utf8");
@@ -63,6 +66,8 @@ assert.ok(readme.includes("not affiliated with OpenAI"), "README avoids endorsem
 assert.ok(readme.includes("npm run verify:browser"), "README documents browser verification");
 assert.ok(readme.includes("GitHub CLI export recipe"), "README links the sanitized export recipe");
 assert.ok(readme.includes("Dependency risk"), "README documents dependency-risk triage");
+assert.ok(readme.includes("compact view"), "README documents compact view");
+assert.ok(readme.includes("issues") && readme.includes("pullRequests"), "README documents mixed GitHub CLI shape");
 assert.ok(readme.includes("Maintenance log"), "README links the maintenance log");
 assert.ok(readme.includes("sanitized-maintainer-queue.json"), "README links the sanitized example fixture");
 
