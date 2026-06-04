@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 - 2026-06-05
+
+- Added synthetic edge-case queue fixtures for empty labels, missing `updated_at`, mixed review states, stale discussions, dependency-risk wording, and draft pull requests.
+- Added GitHub CLI import preset fixtures for issues-only, pull-requests-only, and mixed `issues` plus `pullRequests` queue shapes.
+- Added support for mixed GitHub CLI preset objects that keep `issues` and `pullRequests` arrays separate.
+- Added lane filtering and compact view controls for larger queue review sessions while keeping the default all-lanes view.
+- Persisted lane filter and compact view state locally and included those view settings in Share URLs.
+- Updated CI actions to current major versions and expanded browser verification for lane filtering, compact view, and mobile overflow protection.
+
 ## 0.3.0 - 2026-06-04
 
 - Added scoring preset profiles for balanced, release, review, dependency, and community triage.

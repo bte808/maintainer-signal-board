@@ -13,7 +13,7 @@ Live demo: <https://bte808.github.io/maintainer-signal-board/>
 
 ## Project Status
 
-Maintainer Signal Board is an early `v0.3.0` static OSS tool. It is built to demonstrate a practical maintainer workflow, not to claim broad adoption or critical ecosystem status. The sample data is synthetic, and this project is not affiliated with OpenAI or endorsed by OpenAI.
+Maintainer Signal Board is an early `v0.4.0` static OSS tool. It is built to demonstrate a practical maintainer workflow, not to claim broad adoption or critical ecosystem status. The sample data is synthetic, and this project is not affiliated with OpenAI or endorsed by OpenAI.
 
 Maintenance signals:
 
