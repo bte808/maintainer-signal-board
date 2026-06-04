@@ -20,6 +20,27 @@ npm run validate
 git diff --check
 ```
 
+## 2026-06-05 - GitHub CLI import preset maintenance
+
+1. CLI preset fixtures
+   - Added synthetic fixtures for issues-only, pull-requests-only, and mixed `issues` plus `pullRequests` queue shapes.
+   - Kept all fixture data on `example-org/example-repo` and avoided private repository names, customer data, and token-like strings.
+
+2. Parser support
+   - Added support for mixed preset objects that keep `issues` and `pullRequests` arrays separate.
+   - Added regression assertions for GitHub CLI labels, assignees, review state, mergeability, draft state, and mixed queue routing.
+
+3. Export recipe
+   - Updated `docs/github-cli-export.md` with supported paste shapes, field notes, and fixture links for smaller preset examples.
+
+Verification for this round:
+
+```bash
+npm test
+npm run validate
+git diff --check
+```
+
 ## 2026-06-04 - v0.3.0 maintenance rounds
 
 1. Scoring preset profiles

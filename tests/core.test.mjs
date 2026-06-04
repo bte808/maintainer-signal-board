@@ -12,6 +12,9 @@ import {
 } from "../src/maintainer-core.js";
 
 const edgeCaseFixture = JSON.parse(await readFile("tests/fixtures/edge-case-queue.json", "utf8"));
+const githubCliIssuesFixture = JSON.parse(await readFile("tests/fixtures/github-cli-issues.json", "utf8"));
+const githubCliPullRequestsFixture = JSON.parse(await readFile("tests/fixtures/github-cli-pull-requests.json", "utf8"));
+const githubCliMixedFixture = JSON.parse(await readFile("tests/fixtures/github-cli-mixed-queue.json", "utf8"));
 
 assert.equal(SAMPLE_QUEUES.length, 4, "four starter queues are available");
 assert.equal(new Set(SAMPLE_QUEUES.map((queue) => queue.id)).size, SAMPLE_QUEUES.length);
@@ -247,6 +250,40 @@ assert.ok(!draftDependency.signals.includes("needs review"), "draft dependency s
 
 assert.ok(makeMaintainerBrief(edgeCaseAnalysis).includes("ISSUE #601"));
 assert.ok(toCsv(edgeCaseAnalysis).includes("dependency risk"));
+
+const githubCliIssuesAnalysis = analyzeQueue({
+  items: parseQueueInput(JSON.stringify(githubCliIssuesFixture)),
+  capacityHours: 3,
+  now: "2026-06-04T12:00:00Z"
+});
+assert.equal(githubCliIssuesAnalysis.metrics.totalOpen, 2);
+assert.equal(githubCliIssuesAnalysis.metrics.security, 1, "gh issue list labels are normalized");
+assert.equal(githubCliIssuesAnalysis.metrics.releaseBlockers, 1, "gh issue list milestones and labels are normalized");
+assert.equal(githubCliIssuesAnalysis.items.find((item) => item.number === 701).ref, "ISSUE #701");
+
+const githubCliPrAnalysis = analyzeQueue({
+  items: parseQueueInput(JSON.stringify(githubCliPullRequestsFixture)),
+  capacityHours: 3,
+  now: "2026-06-04T12:00:00Z"
+});
+assert.equal(githubCliPrAnalysis.metrics.totalOpen, 2);
+assert.equal(githubCliPrAnalysis.metrics.dependencyRisk, 1, "gh pr list dependency labels are normalized");
+assert.equal(githubCliPrAnalysis.metrics.readyToMerge, 1, "gh pr list mergeable/review state is normalized");
+assert.equal(githubCliPrAnalysis.items.find((item) => item.number === 801).type, "pr");
+assert.ok(githubCliPrAnalysis.items.find((item) => item.number === 801).signals.includes("merge candidate"));
+assert.equal(githubCliPrAnalysis.items.find((item) => item.number === 802).lane, "Ready to merge");
+
+const githubCliMixedAnalysis = analyzeQueue({
+  items: parseQueueInput(JSON.stringify(githubCliMixedFixture)),
+  capacityHours: 1,
+  now: "2026-06-04T12:00:00Z"
+});
+assert.equal(githubCliMixedAnalysis.metrics.totalOpen, 2, "issues/pullRequests wrapper is supported");
+assert.equal(githubCliMixedAnalysis.items.find((item) => item.number === 901).lane, "Community follow-up");
+const mixedDraft = githubCliMixedAnalysis.items.find((item) => item.number === 902);
+assert.equal(mixedDraft.type, "pr");
+assert.ok(mixedDraft.signals.includes("dependency risk"));
+assert.ok(mixedDraft.signals.includes("draft"));
 
 assert.throws(() => parseQueueInput("{"), /Expected|JSON/);
 

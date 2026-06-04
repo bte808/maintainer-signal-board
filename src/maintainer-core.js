@@ -298,11 +298,31 @@ export function parseQueueInput(raw) {
   const text = String(raw || "").trim();
   if (!text) return [];
   const parsed = JSON.parse(text);
-  const source = Array.isArray(parsed) ? parsed : parsed.items || parsed.nodes || parsed.data?.nodes || parsed.data || [];
+  const source = extractQueueItems(parsed);
   if (!Array.isArray(source)) {
     throw new Error("Expected a JSON array or an object with an items array.");
   }
   return source;
+}
+
+function extractQueueItems(parsed) {
+  if (Array.isArray(parsed)) return parsed;
+  if (Array.isArray(parsed?.items)) return parsed.items;
+  if (Array.isArray(parsed?.nodes)) return parsed.nodes;
+  if (Array.isArray(parsed?.data?.nodes)) return parsed.data.nodes;
+  if (Array.isArray(parsed?.data)) return parsed.data;
+
+  const issues = Array.isArray(parsed?.issues) ? parsed.issues : [];
+  const pullRequests = Array.isArray(parsed?.pullRequests)
+    ? parsed.pullRequests
+    : Array.isArray(parsed?.prs)
+      ? parsed.prs
+      : [];
+  if (issues.length || pullRequests.length) {
+    return [...issues, ...pullRequests];
+  }
+
+  return [];
 }
 
 export function analyzeQueue(input = {}) {

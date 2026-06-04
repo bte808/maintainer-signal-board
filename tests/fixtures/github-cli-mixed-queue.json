@@ -1,0 +1,35 @@
+{
+  "issues": [
+    {
+      "number": 901,
+      "url": "https://github.com/example-org/example-repo/issues/901",
+      "title": "Stale community discussion about backlog labels",
+      "labels": [{ "name": "question" }],
+      "createdAt": "2026-04-10T08:00:00Z",
+      "updatedAt": "2026-04-20T08:00:00Z",
+      "comments": 15,
+      "author": { "login": "synthetic-user" },
+      "assignees": [],
+      "milestone": null,
+      "state": "OPEN"
+    }
+  ],
+  "pullRequests": [
+    {
+      "number": 902,
+      "url": "https://github.com/example-org/example-repo/pull/902",
+      "title": "Draft dependency spike for SBOM export",
+      "labels": [{ "name": "dependencies" }],
+      "createdAt": "2026-06-03T08:00:00Z",
+      "updatedAt": "2026-06-04T08:00:00Z",
+      "comments": 1,
+      "author": { "login": "synthetic-maintainer" },
+      "assignees": [],
+      "reviewDecision": "REVIEW_REQUIRED",
+      "mergeable": false,
+      "isDraft": true,
+      "milestone": null,
+      "state": "OPEN"
+    }
+  ]
+}

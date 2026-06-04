@@ -15,6 +15,22 @@ gh auth status
 jq --version
 ```
 
+## Supported Paste Shapes
+
+The board accepts these JSON shapes:
+
+- An issues-only array from `gh issue list --json ...`.
+- A pull-requests-only array from `gh pr list --json ...`.
+- A normalized object with an `items` array.
+- A mixed preset object with `issues` and `pullRequests` arrays.
+- GraphQL-style objects with `data.nodes`.
+
+Synthetic examples are available in:
+
+- `tests/fixtures/github-cli-issues.json`
+- `tests/fixtures/github-cli-pull-requests.json`
+- `tests/fixtures/github-cli-mixed-queue.json`
+
 ## Issues
 
 Export open issues with only the fields used by the board:
@@ -80,9 +96,30 @@ Write both exports to files, then merge them:
 jq -s '{ items: (.[0] + .[1]) }' issues.json prs.json > maintainer-queue.json
 ```
 
+You can also keep the two queues separate in a mixed preset object:
+
+```bash
+jq -n \
+  --slurpfile issues issues.json \
+  --slurpfile pullRequests prs.json \
+  '{ issues: $issues[0], pullRequests: $pullRequests[0] }' \
+  > maintainer-queue.mixed.json
+```
+
 Open the board, paste `maintainer-queue.json`, and run the analysis.
 
 To test the shape before exporting a real repository queue, paste `examples/sanitized-maintainer-queue.json` into the board. It uses neutral `example-org/example-repo` data and exercises GraphQL-shaped labels, assignees, comment counts, and repository metadata.
+
+Use the `tests/fixtures/github-cli-*.json` files when you want smaller examples for the three common CLI preset shapes.
+
+## Field Notes
+
+The board reads these fields when they are present:
+
+- Required: `number` or `id`, plus `title` or `name`.
+- Helpful for routing: `url`, `type`, `labels`, `reviewDecision`, `review_decision`, `mergeable`, `isDraft`, `draft`, and `milestone`.
+- Helpful for load estimates: `comments`, `createdAt`, `created_at`, `updatedAt`, `updated_at`, `assignees`, and `author`.
+- Ignored safely: color, label descriptions, avatar URLs, node IDs, and other GitHub metadata that the board does not score.
 
 ## Sanitizing Public Examples
 

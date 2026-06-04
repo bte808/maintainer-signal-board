@@ -1,0 +1,34 @@
+[
+  {
+    "number": 701,
+    "url": "https://github.com/example-org/example-repo/issues/701",
+    "title": "Security hardening request for redaction preview",
+    "labels": [
+      { "name": "security" },
+      { "name": "triage" }
+    ],
+    "createdAt": "2026-06-02T08:00:00Z",
+    "updatedAt": "2026-06-04T10:00:00Z",
+    "comments": 5,
+    "author": { "login": "synthetic-reporter" },
+    "assignees": [],
+    "milestone": { "title": "v1.4" },
+    "state": "OPEN"
+  },
+  {
+    "number": 702,
+    "url": "https://github.com/example-org/example-repo/issues/702",
+    "title": "Release blocker: migration guide misses rollback section",
+    "labels": [
+      { "name": "release-blocker" },
+      { "name": "docs" }
+    ],
+    "createdAt": "2026-06-01T12:00:00Z",
+    "updatedAt": "2026-06-03T09:30:00Z",
+    "comments": 3,
+    "author": { "login": "synthetic-maintainer" },
+    "assignees": [{ "login": "docs-owner" }],
+    "milestone": { "title": "v1.4" },
+    "state": "OPEN"
+  }
+]

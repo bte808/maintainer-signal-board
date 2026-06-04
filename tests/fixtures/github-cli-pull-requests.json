@@ -1,0 +1,39 @@
+[
+  {
+    "number": 801,
+    "url": "https://github.com/example-org/example-repo/pull/801",
+    "title": "Renovate lockfile update for parser package",
+    "labels": [
+      { "name": "dependencies" },
+      { "name": "lockfile" }
+    ],
+    "createdAt": "2026-06-02T08:00:00Z",
+    "updatedAt": "2026-06-04T10:00:00Z",
+    "comments": 6,
+    "author": { "login": "renovate" },
+    "assignees": [{ "login": "maintainer-a" }],
+    "reviewDecision": "REVIEW_REQUIRED",
+    "mergeable": true,
+    "isDraft": false,
+    "milestone": { "title": "v1.4" },
+    "state": "OPEN"
+  },
+  {
+    "number": 802,
+    "url": "https://github.com/example-org/example-repo/pull/802",
+    "title": "Approved docs polish for contributor guide",
+    "labels": [
+      { "name": "docs" }
+    ],
+    "createdAt": "2026-06-03T09:00:00Z",
+    "updatedAt": "2026-06-04T09:30:00Z",
+    "comments": 2,
+    "author": { "login": "synthetic-contributor" },
+    "assignees": [{ "login": "docs-owner" }],
+    "reviewDecision": "APPROVED",
+    "mergeable": true,
+    "isDraft": false,
+    "milestone": null,
+    "state": "OPEN"
+  }
+]

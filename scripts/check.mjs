@@ -26,6 +26,9 @@ const required = [
   "docs/demo.png",
   "examples/sanitized-maintainer-queue.json",
   "tests/fixtures/edge-case-queue.json",
+  "tests/fixtures/github-cli-issues.json",
+  "tests/fixtures/github-cli-pull-requests.json",
+  "tests/fixtures/github-cli-mixed-queue.json",
   "favicon.svg"
 ];
 
@@ -67,6 +70,10 @@ const exportDoc = await readFile("docs/github-cli-export.md", "utf8");
 assert.ok(exportDoc.includes("gh issue list"), "export doc includes issue export command");
 assert.ok(exportDoc.includes("gh pr list"), "export doc includes PR export command");
 assert.ok(exportDoc.includes("Do not export secrets"), "export doc includes sanitization warning");
+assert.ok(exportDoc.includes("github-cli-issues.json"), "export doc links issues preset fixture");
+assert.ok(exportDoc.includes("github-cli-pull-requests.json"), "export doc links pull request preset fixture");
+assert.ok(exportDoc.includes("github-cli-mixed-queue.json"), "export doc links mixed preset fixture");
+assert.ok(exportDoc.includes("issues") && exportDoc.includes("pullRequests"), "export doc explains mixed queue shape");
 
 const maintenanceLog = await readFile("docs/maintenance-log.md", "utf8");
 assert.ok(maintenanceLog.includes("v0.3.0 maintenance rounds"), "maintenance log records this release");
@@ -80,5 +87,18 @@ const edgeCaseFixture = JSON.parse(await readFile("tests/fixtures/edge-case-queu
 assert.ok(Array.isArray(edgeCaseFixture.items), "edge-case fixture has items");
 assert.ok(edgeCaseFixture.items.length >= 5, "edge-case fixture covers multiple queue shapes");
 assert.ok(!JSON.stringify(edgeCaseFixture).includes("github.com/"), "edge-case fixture avoids real repository URLs");
+
+const githubCliFixtures = [
+  "tests/fixtures/github-cli-issues.json",
+  "tests/fixtures/github-cli-pull-requests.json",
+  "tests/fixtures/github-cli-mixed-queue.json"
+];
+for (const file of githubCliFixtures) {
+  const fixtureText = await readFile(file, "utf8");
+  const fixture = JSON.parse(fixtureText);
+  assert.ok(fixtureText.includes("example-org/example-repo"), `${file} uses neutral repository names`);
+  assert.ok(!/(private-org|private-repo|customer|github_pat_|gho_)/i.test(fixtureText), `${file} avoids private or token-like data`);
+  assert.ok(Array.isArray(fixture) || Array.isArray(fixture.items) || Array.isArray(fixture.issues), `${file} has a queue shape`);
+}
 
 console.log("static check ok");
