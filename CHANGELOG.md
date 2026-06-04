@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1 - 2026-06-04
+
+- Fixed browser verification on Linux CI by auto-detecting Chrome or Chromium executables.
+- Kept local macOS browser verification behavior unchanged.
+
 ## 0.1.0 - 2026-06-04
 
 - Shipped the initial local-first Maintainer Signal Board static app.
