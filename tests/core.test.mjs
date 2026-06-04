@@ -16,8 +16,11 @@ const githubCliIssuesFixture = JSON.parse(await readFile("tests/fixtures/github-
 const githubCliPullRequestsFixture = JSON.parse(await readFile("tests/fixtures/github-cli-pull-requests.json", "utf8"));
 const githubCliMixedFixture = JSON.parse(await readFile("tests/fixtures/github-cli-mixed-queue.json", "utf8"));
 
-assert.equal(SAMPLE_QUEUES.length, 4, "four starter queues are available");
+assert.equal(SAMPLE_QUEUES.length, 7, "four starter queues plus three drill queues are available");
 assert.equal(new Set(SAMPLE_QUEUES.map((queue) => queue.id)).size, SAMPLE_QUEUES.length);
+for (const sampleId of ["release-candidate-drill", "security-hardening-drill", "dependency-review-drill"]) {
+  assert.ok(SAMPLE_QUEUES.some((queue) => queue.id === sampleId), `${sampleId} is available`);
+}
 assert.equal(DEFAULT_WEIGHTS.dependencyRisk, 24);
 assert.ok(Object.keys(WEIGHT_PROFILES).length >= 5, "maintainer scoring profiles are available");
 assert.equal(WEIGHT_PROFILES.dependency.weights.dependencyRisk, 70);
@@ -71,6 +74,63 @@ assert.ok(dependencyRisk.metrics.dependencyRisk >= 3, "dependency-risk signals a
 assert.ok(dependencyRisk.lanes.some((lane) => lane.name === "Dependency risk" && lane.items.length >= 3));
 assert.ok(dependencyRisk.nextActions.some((action) => action.includes("lockfile")));
 assert.ok(makeMaintainerBrief(dependencyRisk).includes("Dependency risk items"));
+
+const drillSampleIds = ["release-candidate-drill", "security-hardening-drill", "dependency-review-drill"];
+for (const sampleId of drillSampleIds) {
+  const sample = SAMPLE_QUEUES.find((queue) => queue.id === sampleId);
+  assert.ok(sample, `${sampleId} exists`);
+  assert.ok(sample.items.length >= 4, `${sampleId} has enough synthetic queue items`);
+  assert.ok(
+    sample.items.every((item) => item.repository === "example-org/example-repo"),
+    `${sampleId} uses neutral synthetic repository names`
+  );
+  assert.ok(!/(private-org|private-repo|customer|github_pat_|gho_)/i.test(JSON.stringify(sample)), `${sampleId} avoids private data`);
+}
+
+const releaseCandidateDrill = analyzeQueue({
+  items: parseQueueInput(sampleToText("release-candidate-drill")),
+  capacityHours: 7,
+  now: "2026-06-04T12:00:00Z"
+});
+const releaseCandidateLanes = new Set(
+  releaseCandidateDrill.lanes.filter((lane) => lane.items.length > 0).map((lane) => lane.name)
+);
+assert.deepEqual(
+  [...releaseCandidateLanes].sort(),
+  [
+    "Backlog shaping",
+    "Community follow-up",
+    "Dependency risk",
+    "Needs review",
+    "Ready to merge",
+    "Release blockers",
+    "Security and quality"
+  ].sort(),
+  "release candidate drill covers every maintainer lane"
+);
+assert.equal(releaseCandidateDrill.metrics.totalOpen, 7);
+assert.ok(releaseCandidateDrill.metrics.releaseBlockers >= 1);
+assert.ok(releaseCandidateDrill.metrics.security >= 1);
+assert.ok(releaseCandidateDrill.metrics.dependencyRisk >= 1);
+assert.ok(makeMaintainerBrief(releaseCandidateDrill).includes("PR example-org/example-repo#305"));
+
+const securityHardeningDrill = analyzeQueue({
+  items: parseQueueInput(sampleToText("security-hardening-drill")),
+  capacityHours: 5,
+  now: "2026-06-04T12:00:00Z"
+});
+assert.ok(securityHardeningDrill.metrics.security >= 2, "security drill keeps non-emergency hardening visible");
+assert.ok(securityHardeningDrill.items.some((item) => item.title.includes("local-first")));
+assert.ok(securityHardeningDrill.items.some((item) => item.lane === "Community follow-up"));
+
+const dependencyReviewDrill = analyzeQueue({
+  items: parseQueueInput(sampleToText("dependency-review-drill")),
+  capacityHours: 5,
+  now: "2026-06-04T12:00:00Z"
+});
+assert.ok(dependencyReviewDrill.metrics.dependencyRisk >= 4, "dependency drill covers all dependency review shapes");
+assert.ok(dependencyReviewDrill.items.some((item) => item.signals.includes("stale")));
+assert.ok(dependencyReviewDrill.items.some((item) => item.signals.includes("draft")));
 
 const weightedAnalysis = analyzeQueue({
   items: [

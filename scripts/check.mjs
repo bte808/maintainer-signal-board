@@ -70,6 +70,16 @@ assert.ok(readme.includes("compact view"), "README documents compact view");
 assert.ok(readme.includes("issues") && readme.includes("pullRequests"), "README documents mixed GitHub CLI shape");
 assert.ok(readme.includes("Maintenance log"), "README links the maintenance log");
 assert.ok(readme.includes("sanitized-maintainer-queue.json"), "README links the sanitized example fixture");
+assert.ok(readme.includes("Release candidate drill"), "README documents the release candidate drill");
+assert.ok(readme.includes("Security hardening drill"), "README documents the security hardening drill");
+assert.ok(readme.includes("Dependency review drill"), "README documents the dependency review drill");
+
+const core = await readFile("src/maintainer-core.js", "utf8");
+for (const sampleId of ["release-candidate-drill", "security-hardening-drill", "dependency-review-drill"]) {
+  assert.ok(core.includes(`id: "${sampleId}"`), `${sampleId} is present`);
+}
+assert.ok(core.includes("example-org/example-repo"), "drill samples use neutral repository names");
+assert.ok(!/(private-org|private-repo|customer|github_pat_|gho_)/i.test(core), "sample data avoids private or token-like data");
 
 const exportDoc = await readFile("docs/github-cli-export.md", "utf8");
 assert.ok(exportDoc.includes("gh issue list"), "export doc includes issue export command");
@@ -81,6 +91,7 @@ assert.ok(exportDoc.includes("github-cli-mixed-queue.json"), "export doc links m
 assert.ok(exportDoc.includes("issues") && exportDoc.includes("pullRequests"), "export doc explains mixed queue shape");
 
 const maintenanceLog = await readFile("docs/maintenance-log.md", "utf8");
+assert.ok(maintenanceLog.includes("drill queue maintenance"), "maintenance log records drill queue work");
 assert.ok(maintenanceLog.includes("v0.3.0 maintenance rounds"), "maintenance log records this release");
 assert.ok(maintenanceLog.includes("Shareable local queue URL"), "maintenance log records share URL work");
 

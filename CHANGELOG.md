@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 - 2026-06-05
+
+- Added three synthetic drill queues for release candidate, security hardening, and dependency review practice.
+- Added a release candidate drill that exercises every maintainer lane: security and quality, dependency risk, release blockers, needs review, ready to merge, community follow-up, and backlog shaping.
+- Kept drill data on neutral `example-org/example-repo` repository names with synthetic issue and pull request authors.
+- Expanded core and browser verification so the new drill samples are loaded and checked for mobile overflow.
+
 ## 0.4.0 - 2026-06-05
 
 - Added synthetic edge-case queue fixtures for empty labels, missing `updated_at`, mixed review states, stale discussions, dependency-risk wording, and draft pull requests.

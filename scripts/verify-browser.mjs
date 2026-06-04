@@ -237,26 +237,49 @@ async function runViewportCheck(cdp, viewport) {
       const brief = byTest('brief-output').value;
       const pageText = document.body.innerText;
       const copyRect = byTest('copy-brief').getBoundingClientRect();
+      const compactEnabled = byTest('lanes').classList.contains('is-compact');
+      const laneFilterValue = byTest('lane-filter').value;
+      const queueItems = document.querySelectorAll('.queue-item').length;
+      const sampleChecks = ['release-candidate-drill', 'security-hardening-drill', 'dependency-review-drill'].map((sampleId) => {
+        byTest('sample-select').value = sampleId;
+        byTest('sample-select').dispatchEvent(new Event('change', { bubbles: true }));
+        byTest('load-sample').click();
+        byTest('capacity-hours').value = '5';
+        byTest('capacity-hours').dispatchEvent(new Event('input', { bubbles: true }));
+        byTest('lane-filter').value = 'all';
+        byTest('lane-filter').dispatchEvent(new Event('change', { bubbles: true }));
+        byTest('compact-view').checked = false;
+        byTest('compact-view').dispatchEvent(new Event('change', { bubbles: true }));
+        return {
+          sampleId,
+          metrics: document.querySelectorAll('.metric').length,
+          queueItems: document.querySelectorAll('.queue-item').length,
+          laneCount: document.querySelectorAll('.lane').length,
+          laneCountWithItems: [...document.querySelectorAll('.lane')].filter((lane) => lane.querySelectorAll('.queue-item').length > 0).length,
+          overflow: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth)
+        };
+      });
       return {
         title: document.title,
         metrics: document.querySelectorAll('.metric').length,
         lanes: lanesBeforeFilter,
         filteredLanes,
         filteredItems,
-        compactEnabled: byTest('lanes').classList.contains('is-compact'),
-        laneFilterValue: byTest('lane-filter').value,
+        compactEnabled,
+        laneFilterValue,
         weightInputs: byTest('scoring-weights').querySelectorAll('input').length,
         profileOptions: byTest('weight-profile').querySelectorAll('option').length,
         dependencyProfileApplied,
         dependencyWeightReset: byTest('weight-dependency-risk').value === '24',
         shareHashReady: window.location.hash.startsWith('#board='),
-        queueItems: document.querySelectorAll('.queue-item').length,
+        queueItems,
         logItems: byTest('evidence-log').querySelectorAll('li').length,
         briefHasDependencyRisk: brief.includes('Dependency risk items'),
         briefHasNextActions: brief.includes('## Next actions'),
         pageHasP0: pageTextBeforeFilter.includes('P0'),
         pageHasDependencyRisk: pageText.includes('Dependency risk'),
         pageHasCapacity: pageText.includes('over capacity') || pageText.includes('fits'),
+        sampleChecks,
         overflow: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth),
         copyVisible: copyRect.top >= 0 && copyRect.bottom <= window.innerHeight
       };
@@ -297,6 +320,9 @@ async function runViewportCheck(cdp, viewport) {
     details.pageHasP0 &&
     details.pageHasDependencyRisk &&
     details.pageHasCapacity &&
+    details.sampleChecks.length === 3 &&
+    details.sampleChecks.every((sample) => sample.metrics === 7 && sample.queueItems >= 4 && sample.laneCount === 7 && sample.overflow <= 1) &&
+    details.sampleChecks.some((sample) => sample.sampleId === "release-candidate-drill" && sample.laneCountWithItems === 7) &&
     details.overflow <= 1 &&
     (viewport.mobile || details.copyVisible);
 

@@ -2,6 +2,27 @@
 
 This log records verified maintainer rounds for small public releases. It is intentionally factual: no adoption claims, no external endorsement claims, and no private queue data.
 
+## 2026-06-05 - drill queue maintenance
+
+1. Synthetic drill queues
+   - Added release candidate, security hardening, and dependency review drill queues.
+   - Kept all drill queue data synthetic and scoped to `example-org/example-repo`.
+
+2. Lane coverage
+   - Added a release candidate drill that exercises every maintainer lane: security and quality, dependency risk, release blockers, needs review, ready to merge, community follow-up, and backlog shaping.
+   - Added regression assertions for drill queue privacy, lane coverage, security hardening signals, dependency review signals, stale discussions, and draft dependency work.
+
+3. Browser verification
+   - Expanded browser checks to load each drill queue at desktop and `390 x 844` mobile sizes.
+   - Verified the drill samples do not introduce horizontal overflow.
+
+Verification for this round:
+
+```bash
+npm run validate
+git diff --check
+```
+
 ## 2026-06-05 - compact lane filter maintenance
 
 1. Lane view controls

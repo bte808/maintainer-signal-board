@@ -237,6 +237,224 @@ export const SAMPLE_QUEUES = [
     ]
   },
   {
+    id: "release-candidate-drill",
+    name: "Release candidate drill",
+    capacityHours: 7,
+    items: [
+      {
+        number: 301,
+        type: "issue",
+        title: "Security hardening for preview token masking",
+        labels: ["security", "quality"],
+        createdAt: "2026-06-03T08:20:00Z",
+        updatedAt: "2026-06-04T05:10:00Z",
+        comments: 4,
+        author: "example-reporter",
+        assignees: ["security-owner"],
+        repository: "example-org/example-repo"
+      },
+      {
+        number: 302,
+        type: "pull_request",
+        title: "Renovate lockfile update for release candidate",
+        labels: ["dependencies", "renovate"],
+        createdAt: "2026-06-02T10:00:00Z",
+        updatedAt: "2026-06-04T04:40:00Z",
+        comments: 5,
+        author: "renovate-example",
+        assignees: ["maintainer"],
+        reviewDecision: "REVIEW_REQUIRED",
+        mergeable: true,
+        repository: "example-org/example-repo"
+      },
+      {
+        number: 303,
+        type: "issue",
+        title: "Release blocker: migration note missing from RC checklist",
+        labels: ["release-blocker", "docs"],
+        createdAt: "2026-06-01T14:00:00Z",
+        updatedAt: "2026-06-03T20:00:00Z",
+        comments: 6,
+        author: "example-release-user",
+        assignees: [],
+        milestone: "v3.0-rc",
+        repository: "example-org/example-repo"
+      },
+      {
+        number: 304,
+        type: "pull_request",
+        title: "Review candidate banner copy",
+        labels: ["docs"],
+        createdAt: "2026-06-03T11:00:00Z",
+        updatedAt: "2026-06-04T03:30:00Z",
+        comments: 2,
+        author: "example-contrib-a",
+        assignees: ["docs-owner"],
+        reviewDecision: "REVIEW_REQUIRED",
+        mergeable: null,
+        repository: "example-org/example-repo"
+      },
+      {
+        number: 305,
+        type: "pull_request",
+        title: "Polish empty-state spacing",
+        labels: ["ui"],
+        createdAt: "2026-06-02T09:30:00Z",
+        updatedAt: "2026-06-04T02:30:00Z",
+        comments: 1,
+        author: "example-contrib-b",
+        assignees: ["maintainer"],
+        reviewDecision: "APPROVED",
+        mergeable: true,
+        repository: "example-org/example-repo"
+      },
+      {
+        number: 306,
+        type: "issue",
+        title: "Long discussion on naming the RC channel",
+        labels: ["discussion"],
+        createdAt: "2026-04-28T12:00:00Z",
+        updatedAt: "2026-05-05T12:30:00Z",
+        comments: 18,
+        author: "example-community-member",
+        assignees: [],
+        repository: "example-org/example-repo"
+      },
+      {
+        number: 307,
+        type: "issue",
+        title: "Add a small example for compact board screenshots",
+        labels: ["enhancement"],
+        createdAt: "2026-06-04T01:00:00Z",
+        updatedAt: "2026-06-04T04:00:00Z",
+        comments: 0,
+        author: "example-reader",
+        assignees: ["maintainer"],
+        repository: "example-org/example-repo"
+      }
+    ]
+  },
+  {
+    id: "security-hardening-drill",
+    name: "Security hardening drill",
+    capacityHours: 5,
+    items: [
+      {
+        number: 401,
+        type: "issue",
+        title: "Security hardening: avoid copying token-like text into briefs",
+        labels: ["security", "privacy"],
+        createdAt: "2026-06-02T12:00:00Z",
+        updatedAt: "2026-06-04T05:45:00Z",
+        comments: 7,
+        author: "example-privacy-reviewer",
+        assignees: ["security-owner"],
+        repository: "example-org/example-repo"
+      },
+      {
+        number: 402,
+        type: "pull_request",
+        title: "Keep evidence log local-first when storage is cleared",
+        labels: ["security", "local-first"],
+        createdAt: "2026-06-03T09:10:00Z",
+        updatedAt: "2026-06-04T03:20:00Z",
+        comments: 4,
+        author: "example-contrib-c",
+        assignees: ["maintainer"],
+        reviewDecision: "REVIEW_REQUIRED",
+        mergeable: true,
+        repository: "example-org/example-repo"
+      },
+      {
+        number: 403,
+        type: "issue",
+        title: "Privacy wording for local sample exports",
+        labels: ["docs", "privacy"],
+        createdAt: "2026-05-20T08:00:00Z",
+        updatedAt: "2026-05-20T09:30:00Z",
+        comments: 12,
+        author: "example-doc-reader",
+        assignees: [],
+        repository: "example-org/example-repo"
+      },
+      {
+        number: 404,
+        type: "pull_request",
+        title: "Add synthetic redaction fixture",
+        labels: ["test"],
+        createdAt: "2026-06-03T16:00:00Z",
+        updatedAt: "2026-06-04T01:00:00Z",
+        comments: 2,
+        author: "example-contrib-d",
+        assignees: ["maintainer"],
+        reviewDecision: "APPROVED",
+        mergeable: true,
+        repository: "example-org/example-repo"
+      }
+    ]
+  },
+  {
+    id: "dependency-review-drill",
+    name: "Dependency review drill",
+    capacityHours: 5,
+    items: [
+      {
+        number: 501,
+        type: "pull_request",
+        title: "Renovate: update parser and package-lock fixtures",
+        labels: ["dependencies", "renovate", "lockfile"],
+        createdAt: "2026-06-02T08:30:00Z",
+        updatedAt: "2026-06-04T05:20:00Z",
+        comments: 5,
+        author: "renovate-example",
+        assignees: ["maintainer"],
+        reviewDecision: "REVIEW_REQUIRED",
+        mergeable: true,
+        repository: "example-org/example-repo"
+      },
+      {
+        number: 502,
+        type: "issue",
+        title: "Transitive dependency review before release branch",
+        labels: ["dependencies", "release"],
+        createdAt: "2026-05-27T10:00:00Z",
+        updatedAt: "2026-06-03T18:45:00Z",
+        comments: 9,
+        author: "example-release-user",
+        assignees: [],
+        milestone: "v3.0",
+        repository: "example-org/example-repo"
+      },
+      {
+        number: 503,
+        type: "issue",
+        title: "Document SBOM owner for weekly dependency review",
+        labels: ["sbom", "docs"],
+        createdAt: "2026-05-01T09:00:00Z",
+        updatedAt: "2026-05-02T09:10:00Z",
+        comments: 11,
+        author: "example-maintainer",
+        assignees: [],
+        repository: "example-org/example-repo"
+      },
+      {
+        number: 504,
+        type: "pull_request",
+        title: "Draft dependency spike for optional chart package",
+        labels: ["dependencies"],
+        createdAt: "2026-06-03T14:00:00Z",
+        updatedAt: "2026-06-03T15:00:00Z",
+        comments: 1,
+        author: "example-contrib-e",
+        assignees: [],
+        draft: true,
+        reviewDecision: "REVIEW_REQUIRED",
+        mergeable: false,
+        repository: "example-org/example-repo"
+      }
+    ]
+  },
+  {
     id: "community-backlog",
     name: "Community backlog",
     capacityHours: 8,
