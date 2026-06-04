@@ -5,9 +5,7 @@ import { dirname, join } from "node:path";
 
 const port = Number(process.env.MAINTAINER_BOARD_PORT || 5184);
 const targetUrl = process.env.MAINTAINER_BOARD_URL || `http://127.0.0.1:${port}/`;
-const chromePath =
-  process.env.CHROME_PATH ||
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const chromePath = await findChromePath();
 
 const userDataDir = await mkdtemp(join(tmpdir(), "maintainer-board-chrome-"));
 let chrome;
@@ -94,6 +92,31 @@ async function launchChrome() {
       }
     });
     chrome.on("error", reject);
+  });
+}
+
+async function findChromePath() {
+  const candidates = [
+    process.env.CHROME_PATH,
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "google-chrome",
+    "google-chrome-stable",
+    "chromium-browser",
+    "chromium"
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    if (await canRun(candidate)) return candidate;
+  }
+
+  throw new Error(`No Chrome or Chromium executable found. Tried: ${candidates.join(", ")}`);
+}
+
+function canRun(command) {
+  return new Promise((resolve) => {
+    const child = spawn(command, ["--version"], { stdio: ["ignore", "ignore", "ignore"] });
+    child.on("error", () => resolve(false));
+    child.on("exit", (code) => resolve(code === 0));
   });
 }
 
