@@ -1,6 +1,7 @@
 # Maintainer Signal Board
 
 [![Live demo](https://img.shields.io/badge/demo-GitHub%20Pages-0969da)](https://bte808.github.io/maintainer-signal-board/)
+[![CI](https://github.com/bte808/maintainer-signal-board/actions/workflows/ci.yml/badge.svg)](https://github.com/bte808/maintainer-signal-board/actions/workflows/ci.yml)
 ![Runtime dependencies](https://img.shields.io/badge/runtime%20deps-0-2ea44f)
 ![Static site](https://img.shields.io/badge/site-static-6f42c1)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -158,9 +159,9 @@ SAVE_SCREENSHOT=docs/demo.png npm run verify:browser
 
 ## Roadmap
 
-- Add keyboard shortcuts for repeated lane review.
-- Add optional saved view presets for recurring maintainer rituals.
-- Add more synthetic sample queues for release, security, and dependency review drills.
+- Add [keyboard shortcuts for repeated lane review](https://github.com/bte808/maintainer-signal-board/issues/14).
+- Add [saved view presets for recurring maintainer rituals](https://github.com/bte808/maintainer-signal-board/issues/12).
+- Add [more synthetic sample queues for release, security, and dependency review drills](https://github.com/bte808/maintainer-signal-board/issues/13).
 
 ## Security and Privacy
 
