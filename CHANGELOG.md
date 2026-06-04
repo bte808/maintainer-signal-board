@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 - 2026-06-04
+
+- Added adjustable scoring weights with local persistence and a reset-to-defaults control.
+- Added dependency-risk signals, a dependency-risk lane, a summary metric, maintainer brief output, and a synthetic dependency-risk queue.
+- Added a sanitized GitHub CLI export recipe for shaping issue and pull request JSON.
+- Expanded core, static, and browser verification for dependency-risk routing, scoring weights, reset behavior, and mobile overflow.
+- Updated release and triage templates so maintainers can report dependency-risk and scoring-weight behavior precisely.
+
 ## 0.1.1 - 2026-06-04
 
 - Fixed browser verification on Linux CI by auto-detecting Chrome or Chromium executables.

@@ -1,5 +1,18 @@
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
+export const DEFAULT_WEIGHTS = Object.freeze({
+  security: 55,
+  releaseBlocker: 35,
+  dependencyRisk: 24,
+  needsReview: 20,
+  mergeCandidate: 14,
+  needsOwner: 8,
+  discussionHeavy: 12,
+  stale: 16,
+  old: 8,
+  draftPenalty: -18
+});
+
 export const SAMPLE_QUEUES = [
   {
     id: "release-week",
@@ -118,6 +131,63 @@ export const SAMPLE_QUEUES = [
     ]
   },
   {
+    id: "dependency-risk",
+    name: "Dependency risk queue",
+    capacityHours: 5,
+    items: [
+      {
+        number: 203,
+        type: "issue",
+        title: "Dependency impact check for transitive markdown parser update",
+        labels: ["dependencies", "supply-chain", "release"],
+        createdAt: "2026-05-31T09:00:00Z",
+        updatedAt: "2026-06-04T06:10:00Z",
+        comments: 12,
+        author: "release-user",
+        assignees: [],
+        milestone: "v2.5"
+      },
+      {
+        number: 207,
+        type: "pull_request",
+        title: "Renovate: bump parser from 4.1.0 to 4.2.3",
+        labels: ["dependencies", "renovate"],
+        createdAt: "2026-06-02T13:30:00Z",
+        updatedAt: "2026-06-04T04:20:00Z",
+        comments: 3,
+        author: "renovate",
+        assignees: ["maintainer"],
+        reviewDecision: "REVIEW_REQUIRED",
+        mergeable: true,
+        milestone: "v2.5"
+      },
+      {
+        number: 211,
+        type: "pull_request",
+        title: "Update package-lock fixture after npm audit",
+        labels: ["lockfile", "test"],
+        createdAt: "2026-06-03T10:00:00Z",
+        updatedAt: "2026-06-03T21:20:00Z",
+        comments: 2,
+        author: "contrib-sol",
+        assignees: [],
+        reviewDecision: "APPROVED",
+        mergeable: true
+      },
+      {
+        number: 199,
+        type: "issue",
+        title: "Document SBOM review checklist for releases",
+        labels: ["docs", "sbom"],
+        createdAt: "2026-05-18T07:00:00Z",
+        updatedAt: "2026-05-19T07:10:00Z",
+        comments: 1,
+        author: "maintainer",
+        assignees: ["docs-owner"]
+      }
+    ]
+  },
+  {
     id: "community-backlog",
     name: "Community backlog",
     capacityHours: 8,
@@ -189,14 +259,16 @@ export function parseQueueInput(raw) {
 export function analyzeQueue(input = {}) {
   const now = input.now ? new Date(input.now) : new Date();
   const capacityHours = clampNumber(input.capacityHours, 6, 1, 80);
+  const weights = normalizeWeights(input.weights);
   const items = (input.items || []).map((item, index) => normalizeItem(item, index, now));
   const openItems = items.filter((item) => item.state !== "closed");
-  const enriched = openItems.map(scoreItem).sort((a, b) => b.score - a.score || a.number - b.number);
+  const enriched = openItems.map((item) => scoreItem(item, weights)).sort((a, b) => b.score - a.score || a.number - b.number);
   const lanes = buildLanes(enriched);
   const maintainerMinutes = enriched.reduce((total, item) => total + item.maintainerMinutes, 0);
   const topItems = enriched.slice(0, 5);
   const releaseBlockers = enriched.filter((item) => item.lane === "Release blockers");
   const securityItems = enriched.filter((item) => item.signals.includes("security"));
+  const dependencyItems = enriched.filter((item) => item.signals.includes("dependency risk"));
   const staleItems = enriched.filter((item) => item.signals.includes("stale"));
   const readyToMerge = enriched.filter((item) => item.lane === "Ready to merge");
   const capacityMinutes = capacityHours * 60;
@@ -204,6 +276,7 @@ export function analyzeQueue(input = {}) {
   return {
     generatedAt: now.toISOString(),
     capacityHours,
+    weights,
     items: enriched,
     lanes,
     topItems,
@@ -213,6 +286,7 @@ export function analyzeQueue(input = {}) {
       p1: enriched.filter((item) => item.priority === "P1").length,
       releaseBlockers: releaseBlockers.length,
       security: securityItems.length,
+      dependencyRisk: dependencyItems.length,
       stale: staleItems.length,
       readyToMerge: readyToMerge.length,
       maintainerHours: roundMetric(maintainerMinutes / 60),
@@ -221,6 +295,7 @@ export function analyzeQueue(input = {}) {
     nextActions: buildNextActions(topItems, {
       releaseBlockers,
       securityItems,
+      dependencyItems,
       staleItems,
       readyToMerge,
       capacityMinutes,
@@ -239,6 +314,7 @@ export function makeMaintainerBrief(analysis) {
     `P0/P1: ${analysis.metrics.p0}/${analysis.metrics.p1}`,
     `Release blockers: ${analysis.metrics.releaseBlockers}`,
     `Security and quality items: ${analysis.metrics.security}`,
+    `Dependency risk items: ${analysis.metrics.dependencyRisk}`,
     "",
     "## Next actions"
   ];
@@ -334,44 +410,48 @@ function normalizeItem(item, index, now) {
   };
 }
 
-function scoreItem(item) {
+function scoreItem(item, weights) {
   const signals = [];
   let score = 10;
 
   if (hasAny(item, ["security", "vulnerability", "cve", "critical"])) {
-    score += 55;
+    score += weights.security;
     signals.push("security");
   }
   if (hasAny(item, ["release-blocker", "blocker", "regression", "release"])) {
-    score += 35;
+    score += weights.releaseBlocker;
     signals.push("release blocker");
   }
+  if (hasDependencyRisk(item)) {
+    score += weights.dependencyRisk;
+    signals.push("dependency risk");
+  }
   if (item.type === "pr" && !item.draft && item.reviewDecision !== "APPROVED") {
-    score += 20;
+    score += weights.needsReview;
     signals.push("needs review");
   }
   if (item.type === "pr" && !item.draft && (item.reviewDecision === "APPROVED" || item.mergeable === true)) {
-    score += 14;
+    score += weights.mergeCandidate;
     signals.push("merge candidate");
   }
   if (!item.assignees.length) {
-    score += 8;
+    score += weights.needsOwner;
     signals.push("needs owner");
   }
   if (item.comments >= 10) {
-    score += 12;
+    score += weights.discussionHeavy;
     signals.push("discussion heavy");
   }
   if (item.staleDays >= 21) {
-    score += 16;
+    score += weights.stale;
     signals.push("stale");
   }
   if (item.ageDays >= 45) {
-    score += 8;
+    score += weights.old;
     signals.push("old");
   }
   if (item.draft) {
-    score -= 18;
+    score += weights.draftPenalty;
     signals.push("draft");
   }
 
@@ -391,6 +471,7 @@ function scoreItem(item) {
 
 function chooseLane(item, signals) {
   if (signals.includes("security")) return "Security and quality";
+  if (signals.includes("dependency risk")) return "Dependency risk";
   if (signals.includes("release blocker") || item.milestone) return "Release blockers";
   if (item.type === "pr" && signals.includes("merge candidate")) return "Ready to merge";
   if (item.type === "pr" && signals.includes("needs review")) return "Needs review";
@@ -401,6 +482,7 @@ function chooseLane(item, signals) {
 function buildLanes(items) {
   const names = [
     "Security and quality",
+    "Dependency risk",
     "Release blockers",
     "Needs review",
     "Ready to merge",
@@ -417,6 +499,9 @@ function buildNextActions(topItems, context) {
   const actions = [];
   if (context.securityItems.length) {
     actions.push(`Start with ${context.securityItems[0].ref}: security items should get a maintainer owner before normal backlog work.`);
+  }
+  if (context.dependencyItems.length) {
+    actions.push(`Review ${context.dependencyItems[0].ref} for lockfile, transitive, and release impact before treating it as routine backlog.`);
   }
   if (context.releaseBlockers.length) {
     actions.push(`Cut the release lane down first: ${context.releaseBlockers.length} item(s) can block a clean release.`);
@@ -441,13 +526,46 @@ function estimateMinutes(item, priority, signals) {
   const typeCost = item.type === "pr" ? 12 : 4;
   const discussionCost = Math.min(24, item.comments * 2);
   const securityCost = signals.includes("security") ? 15 : 0;
+  const dependencyCost = signals.includes("dependency risk") ? 10 : 0;
   const ownerDiscount = item.assignees.length ? -5 : 0;
-  return Math.max(8, Math.round(priorityBase + typeCost + discussionCost + securityCost + ownerDiscount));
+  return Math.max(8, Math.round(priorityBase + typeCost + discussionCost + securityCost + dependencyCost + ownerDiscount));
 }
 
 function hasAny(item, terms) {
   const haystack = `${item.title} ${item.labelText}`.toLowerCase();
   return terms.some((term) => haystack.includes(term));
+}
+
+function hasDependencyRisk(item) {
+  return hasAny(item, [
+    "dependency",
+    "dependencies",
+    "dependabot",
+    "renovate",
+    "supply-chain",
+    "supply chain",
+    "lockfile",
+    "package-lock",
+    "pnpm-lock",
+    "yarn.lock",
+    "npm audit",
+    "transitive",
+    "sbom"
+  ]);
+}
+
+function normalizeWeights(input = {}) {
+  const weights = { ...DEFAULT_WEIGHTS };
+  if (!input || typeof input !== "object") return weights;
+  for (const key of Object.keys(DEFAULT_WEIGHTS)) {
+    const value = Number(input[key]);
+    if (Number.isFinite(value)) {
+      const min = key === "draftPenalty" ? -100 : 0;
+      const max = key === "draftPenalty" ? 0 : 120;
+      weights[key] = clampNumber(value, DEFAULT_WEIGHTS[key], min, max);
+    }
+  }
+  return weights;
 }
 
 function normalizeLabels(labels) {

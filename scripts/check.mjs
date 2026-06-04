@@ -21,6 +21,7 @@ const required = [
   "docs/pr-review-playbook.md",
   "docs/issue-triage-playbook.md",
   "docs/release-playbook.md",
+  "docs/github-cli-export.md",
   "docs/demo.png",
   "favicon.svg"
 ];
@@ -39,6 +40,8 @@ const html = await readFile("index.html", "utf8");
 assert.ok(html.includes('type="module" src="src/app.js"'), "HTML loads app module");
 assert.ok(html.includes("data-testid=\"sample-select\""), "sample selector is wired");
 assert.ok(html.includes("data-testid=\"brief-output\""), "brief output is wired");
+assert.ok(html.includes("data-testid=\"scoring-weights\""), "scoring weight controls are wired");
+assert.ok(html.includes("data-testid=\"reset-weights\""), "weight reset button is wired");
 
 const css = await readFile("styles.css", "utf8");
 assert.ok(css.includes("@media (max-width: 760px)"), "mobile breakpoint exists");
@@ -50,5 +53,12 @@ assert.ok(readme.includes("GitHub Pages"), "README links live demo section");
 assert.ok(readme.includes("local-first"), "README explains local-first behavior");
 assert.ok(readme.includes("not affiliated with OpenAI"), "README avoids endorsement claims");
 assert.ok(readme.includes("npm run verify:browser"), "README documents browser verification");
+assert.ok(readme.includes("GitHub CLI export recipe"), "README links the sanitized export recipe");
+assert.ok(readme.includes("Dependency risk"), "README documents dependency-risk triage");
+
+const exportDoc = await readFile("docs/github-cli-export.md", "utf8");
+assert.ok(exportDoc.includes("gh issue list"), "export doc includes issue export command");
+assert.ok(exportDoc.includes("gh pr list"), "export doc includes PR export command");
+assert.ok(exportDoc.includes("Do not export secrets"), "export doc includes sanitization warning");
 
 console.log("static check ok");

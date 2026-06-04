@@ -17,7 +17,8 @@ Check the primary workflow in a local browser or equivalent static preview:
 - Built-in sample queue loads.
 - Empty input is handled without crashing.
 - A synthetic custom JSON queue can be analyzed.
-- Security, release, stale, draft, and merge-candidate examples land in expected lanes.
+- Security, dependency-risk, release, stale, draft, and merge-candidate examples land in expected lanes.
+- Scoring weights can be changed and reset to defaults.
 - Generated maintainer brief is readable.
 - CSV output, when exposed by the UI, keeps stable column names.
 - Mobile layout remains usable.

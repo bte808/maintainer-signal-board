@@ -8,6 +8,7 @@
   --line: #d8ded5;
   --blue: #2f62c2;
   --green: #13745a;
+  --teal: #0f766e;
   --amber: #9a6200;
   --red: #b33d4a;
   --violet: #6a55b8;
@@ -119,6 +120,29 @@ h3 {
   box-shadow: var(--shadow);
 }
 
+.weights-panel {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.weights-grid {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(92px, 1fr));
+  gap: 10px;
+  padding: 12px;
+}
+
+.weights-grid label {
+  min-width: 0;
+}
+
+.weights-grid input {
+  font-weight: 850;
+}
+
 label {
   display: grid;
   gap: 6px;
@@ -167,7 +191,7 @@ textarea:focus {
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 10px;
   margin: 14px 0;
 }
@@ -202,6 +226,10 @@ textarea:focus {
 
 .metric-security {
   border-left-color: var(--red);
+}
+
+.metric-dependency {
+  border-left-color: var(--teal);
 }
 
 .metric-load {
@@ -392,6 +420,10 @@ textarea {
 
 @media (max-width: 1220px) {
   .metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .weights-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
@@ -432,6 +464,10 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .weights-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .queue-item div {
     display: grid;
   }
@@ -453,5 +489,9 @@ textarea {
 
   .panel-heading button {
     width: 100%;
+  }
+
+  .weights-grid {
+    grid-template-columns: 1fr;
   }
 }

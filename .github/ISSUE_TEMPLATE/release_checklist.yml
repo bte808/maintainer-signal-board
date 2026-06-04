@@ -38,7 +38,8 @@ body:
         - label: Built-in synthetic sample loads.
         - label: Empty input is handled.
         - label: Synthetic custom JSON can be analyzed.
-        - label: Security and release examples land in expected lanes.
+        - label: Security, dependency-risk, and release examples land in expected lanes.
+        - label: Scoring weights can be adjusted and reset.
         - label: Maintainer brief is readable.
         - label: CSV output is stable when exposed.
         - label: Mobile layout is usable.

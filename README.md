@@ -13,7 +13,7 @@ Live demo: <https://bte808.github.io/maintainer-signal-board/>
 
 ## Project Status
 
-Maintainer Signal Board is an early `v0.1.0` static OSS tool. It is built to demonstrate a practical maintainer workflow, not to claim broad adoption or critical ecosystem status. The sample data is synthetic, and this project is not affiliated with OpenAI or endorsed by OpenAI.
+Maintainer Signal Board is an early `v0.2.0` static OSS tool. It is built to demonstrate a practical maintainer workflow, not to claim broad adoption or critical ecosystem status. The sample data is synthetic, and this project is not affiliated with OpenAI or endorsed by OpenAI.
 
 Maintenance signals:
 
@@ -21,6 +21,8 @@ Maintenance signals:
 - No runtime dependencies.
 - Static, local-first GitHub Pages demo.
 - Core scoring tests and desktop/mobile browser verification.
+- Adjustable scoring weights for different maintainer styles.
+- Dependency-risk heuristics for dependency and lockfile triage.
 - Maintainer-facing docs for issue triage, PR review, release process, security, contribution, and conduct.
 - GitHub issue templates and PR template for repeatable maintenance.
 
@@ -33,7 +35,8 @@ It is useful for:
 - Pull request review queues.
 - Issue triage and stale discussion follow-up.
 - Release blocker checks.
-- Security and privacy hardening intake.
+- Security and privacy intake signals.
+- Dependency-risk heuristics for package, lockfile, and transitive-update review queues.
 - Copy-ready maintainer status notes.
 - Small OSS projects that want a low-friction review ritual.
 
@@ -41,9 +44,11 @@ It is useful for:
 
 - Parses pasted JSON arrays or objects with an `items` array.
 - Normalizes common GitHub-style fields such as `number`, `type`, `labels`, `created_at`, `updated_at`, `review_decision`, `mergeable`, `draft`, and `milestone`.
-- Scores queue items from visible signals: security, release blockers, stale age, review state, ownership, discussion load, and merge readiness.
+- Scores queue items from visible signals: security/privacy wording, release blockers, dependency-risk wording, stale age, review state, ownership, discussion load, and merge readiness.
+- Lets maintainers adjust scoring weights and reset to documented defaults.
 - Groups work into maintainer lanes:
   - Security and quality.
+  - Dependency risk.
   - Release blockers.
   - Needs review.
   - Ready to merge.
@@ -53,12 +58,15 @@ It is useful for:
 - Exports Markdown, CSV, and JSON locally.
 - Keeps a small evidence log in `localStorage` so a maintainer can record the top action taken.
 
+Dependency risk is based on title and label heuristics such as `dependencies`, `renovate`, `lockfile`, `npm audit`, `transitive`, and `sbom`. It is not a vulnerability scanner, package auditor, SBOM generator, or security validation tool.
+
 ## Demo Samples
 
 The built-in queues are synthetic:
 
 - Release week queue.
 - Security patch queue.
+- Dependency risk queue.
 - Community backlog.
 
 They are intentionally small and readable. They are fixtures for workflow review, not claims about real repository usage.
@@ -93,6 +101,8 @@ Or an object:
 ```
 
 Use synthetic or sanitized data. Do not paste private repository names, secrets, tokens, customer details, or private organization data into public examples.
+
+For a repeatable export flow, use the [GitHub CLI export recipe](docs/github-cli-export.md).
 
 ## Run Locally
 
@@ -134,17 +144,16 @@ SAVE_SCREENSHOT=docs/demo.png npm run verify:browser
 - [Issue triage playbook](docs/issue-triage-playbook.md)
 - [PR review playbook](docs/pr-review-playbook.md)
 - [Release playbook](docs/release-playbook.md)
+- [GitHub CLI export recipe](docs/github-cli-export.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 - [Code of conduct](CODE_OF_CONDUCT.md)
 
 ## Roadmap
 
-- Add a GitHub CLI snippet that exports sanitized queue JSON.
 - Add a shareable local URL hash for small synthetic examples.
-- Add adjustable scoring weights for different maintainer styles.
-- Add a dependency-risk lane for release and security checks.
 - Add more regression fixtures for edge-case queue data.
+- Add optional preset profiles for review-heavy, release-heavy, and community-heavy queues.
 
 ## Security and Privacy
 

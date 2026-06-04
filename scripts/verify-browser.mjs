@@ -207,11 +207,14 @@ async function runViewportCheck(cdp, viewport) {
     sessionId,
     `(() => {
       const byTest = (id) => document.querySelector('[data-testid="' + id + '"]');
-      byTest('sample-select').value = 'security-patch';
+      byTest('sample-select').value = 'dependency-risk';
       byTest('sample-select').dispatchEvent(new Event('change', { bubbles: true }));
       byTest('load-sample').click();
       byTest('capacity-hours').value = '3';
       byTest('capacity-hours').dispatchEvent(new Event('input', { bubbles: true }));
+      byTest('weight-dependency-risk').value = '72';
+      byTest('weight-dependency-risk').dispatchEvent(new Event('input', { bubbles: true }));
+      byTest('reset-weights').click();
       byTest('analyze').click();
       byTest('add-log').click();
       const brief = byTest('brief-output').value;
@@ -221,11 +224,14 @@ async function runViewportCheck(cdp, viewport) {
         title: document.title,
         metrics: document.querySelectorAll('.metric').length,
         lanes: document.querySelectorAll('.lane').length,
+        weightInputs: byTest('scoring-weights').querySelectorAll('input').length,
+        dependencyWeightReset: byTest('weight-dependency-risk').value === '24',
         queueItems: document.querySelectorAll('.queue-item').length,
         logItems: byTest('evidence-log').querySelectorAll('li').length,
-        briefHasSecurity: brief.includes('Security and quality'),
+        briefHasDependencyRisk: brief.includes('Dependency risk items'),
         briefHasNextActions: brief.includes('## Next actions'),
         pageHasP0: pageText.includes('P0'),
+        pageHasDependencyRisk: pageText.includes('Dependency risk'),
         pageHasCapacity: pageText.includes('over capacity') || pageText.includes('fits'),
         overflow: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth),
         copyVisible: copyRect.top >= 0 && copyRect.bottom <= window.innerHeight
@@ -249,13 +255,16 @@ async function runViewportCheck(cdp, viewport) {
 
   const ok =
     details.title.includes("Maintainer Signal Board") &&
-    details.metrics === 6 &&
-    details.lanes === 6 &&
+    details.metrics === 7 &&
+    details.lanes === 7 &&
+    details.weightInputs === 9 &&
+    details.dependencyWeightReset &&
     details.queueItems >= 3 &&
     details.logItems >= 1 &&
-    details.briefHasSecurity &&
+    details.briefHasDependencyRisk &&
     details.briefHasNextActions &&
     details.pageHasP0 &&
+    details.pageHasDependencyRisk &&
     details.pageHasCapacity &&
     details.overflow <= 1 &&
     (viewport.mobile || details.copyVisible);

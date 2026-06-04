@@ -1,4 +1,5 @@
 import {
+  DEFAULT_WEIGHTS,
   SAMPLE_QUEUES,
   analyzeQueue,
   makeMaintainerBrief,
@@ -9,6 +10,17 @@ import {
 
 const STORAGE_KEY = "maintainer-signal-board-v1";
 const LOG_KEY = "maintainer-signal-board-log-v1";
+const WEIGHT_FIELDS = [
+  { key: "security", label: "Security", min: 0, max: 100 },
+  { key: "releaseBlocker", label: "Release blocker", min: 0, max: 100 },
+  { key: "dependencyRisk", label: "Dependency risk", min: 0, max: 100 },
+  { key: "needsReview", label: "Needs review", min: 0, max: 80 },
+  { key: "mergeCandidate", label: "Merge candidate", min: 0, max: 60 },
+  { key: "needsOwner", label: "Needs owner", min: 0, max: 50 },
+  { key: "discussionHeavy", label: "Discussion heavy", min: 0, max: 50 },
+  { key: "stale", label: "Stale", min: 0, max: 60 },
+  { key: "draftPenalty", label: "Draft penalty", min: -80, max: 0 }
+];
 
 const state = loadState();
 let latestAnalysis = null;
@@ -17,6 +29,8 @@ const elements = {
   sample: document.querySelector("[data-testid='sample-select']"),
   loadSample: document.querySelector("[data-testid='load-sample']"),
   capacity: document.querySelector("[data-testid='capacity-hours']"),
+  weights: document.querySelector("[data-testid='scoring-weights']"),
+  resetWeights: document.querySelector("[data-testid='reset-weights']"),
   input: document.querySelector("[data-testid='queue-input']"),
   analyze: document.querySelector("[data-testid='analyze']"),
   copyBrief: document.querySelector("[data-testid='copy-brief']"),
@@ -55,6 +69,21 @@ function bindControls() {
     runAnalysis("Capacity updated");
   });
 
+  elements.weights.addEventListener("input", (event) => {
+    const key = event.target.dataset.weightKey;
+    if (!key) return;
+    state.weights[key] = Number(event.target.value);
+    saveState();
+    runAnalysis("Weights updated");
+  });
+
+  elements.resetWeights.addEventListener("click", () => {
+    state.weights = { ...DEFAULT_WEIGHTS };
+    renderWeightControls();
+    saveState();
+    runAnalysis("Weights reset");
+  });
+
   elements.input.addEventListener("input", () => {
     state.queueText = elements.input.value;
     saveState();
@@ -83,6 +112,7 @@ function bindControls() {
 function renderInitial() {
   elements.sample.innerHTML = SAMPLE_QUEUES.map((sample) => option(sample.id, sample.name, state.sampleId)).join("");
   elements.capacity.value = state.capacityHours;
+  renderWeightControls();
   elements.input.value = state.queueText;
   runAnalysis("Ready");
   renderEvidenceLog();
@@ -94,6 +124,7 @@ function runAnalysis(statusMessage) {
     latestAnalysis = analyzeQueue({
       items,
       capacityHours: elements.capacity.value,
+      weights: state.weights,
       now: "2026-06-04T12:00:00.000Z"
     });
     renderAnalysis(latestAnalysis);
@@ -114,6 +145,7 @@ function renderAnalysis(analysis) {
     metric("P0/P1", `${analysis.metrics.p0}/${analysis.metrics.p1}`, "priority"),
     metric("Release blockers", analysis.metrics.releaseBlockers, "release"),
     metric("Security", analysis.metrics.security, "security"),
+    metric("Dependencies", analysis.metrics.dependencyRisk, "dependency"),
     metric("Maintainer load", `${analysis.metrics.maintainerHours}h`, "load"),
     metric("Capacity", analysis.metrics.capacityFit, "capacity")
   ].join("");
@@ -159,6 +191,28 @@ function renderEvidenceLog() {
     : "<li><span>No saved maintainer decisions yet</span></li>";
 }
 
+function renderWeightControls() {
+  state.weights = normalizeWeightState(state.weights);
+  elements.weights.innerHTML = WEIGHT_FIELDS.map((field) => {
+    const value = state.weights[field.key];
+    return `
+      <label>
+        <span>${escapeHtml(field.label)}</span>
+        <input
+          data-testid="${escapeHtml(weightTestId(field.key))}"
+          data-weight-key="${escapeHtml(field.key)}"
+          type="number"
+          min="${field.min}"
+          max="${field.max}"
+          step="1"
+          inputmode="numeric"
+          value="${escapeHtml(value)}"
+        />
+      </label>
+    `;
+  }).join("");
+}
+
 function addEvidenceLog() {
   if (!latestAnalysis) return;
   const first = latestAnalysis.nextActions[0] || "Reviewed maintainer queue.";
@@ -195,7 +249,8 @@ function loadState() {
   return {
     sampleId: SAMPLE_QUEUES[0].id,
     capacityHours: SAMPLE_QUEUES[0].capacityHours,
-    queueText: sampleToText(SAMPLE_QUEUES[0].id)
+    queueText: sampleToText(SAMPLE_QUEUES[0].id),
+    weights: { ...DEFAULT_WEIGHTS }
   };
 }
 
@@ -216,6 +271,19 @@ function getEvidenceLog() {
   }
 }
 
+function normalizeWeightState(input) {
+  const weights = { ...DEFAULT_WEIGHTS };
+  if (!input || typeof input !== "object") return weights;
+  for (const key of Object.keys(DEFAULT_WEIGHTS)) {
+    const value = Number(input[key]);
+    if (Number.isFinite(value)) {
+      const field = WEIGHT_FIELDS.find((item) => item.key === key);
+      weights[key] = clampNumber(value, field?.min ?? -100, field?.max ?? 120);
+    }
+  }
+  return weights;
+}
+
 function metric(label, value, tone) {
   return `
     <article class="metric metric-${tone}">
@@ -223,6 +291,14 @@ function metric(label, value, tone) {
       <strong>${escapeHtml(value)}</strong>
     </article>
   `;
+}
+
+function weightTestId(key) {
+  return `weight-${key.replaceAll(/([A-Z])/g, "-$1").toLowerCase()}`;
+}
+
+function clampNumber(value, min, max) {
+  return Math.min(max, Math.max(min, value));
 }
 
 function downloadFile(filename, content, type) {

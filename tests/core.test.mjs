@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {
+  DEFAULT_WEIGHTS,
   SAMPLE_QUEUES,
   analyzeQueue,
   makeMaintainerBrief,
@@ -8,8 +9,9 @@ import {
   toCsv
 } from "../src/maintainer-core.js";
 
-assert.equal(SAMPLE_QUEUES.length, 3, "three starter queues are available");
+assert.equal(SAMPLE_QUEUES.length, 4, "four starter queues are available");
 assert.equal(new Set(SAMPLE_QUEUES.map((queue) => queue.id)).size, SAMPLE_QUEUES.length);
+assert.equal(DEFAULT_WEIGHTS.dependencyRisk, 24);
 
 const releaseItems = parseQueueInput(sampleToText("release-week"));
 const releaseAnalysis = analyzeQueue({
@@ -51,6 +53,77 @@ const securityPatch = analyzeQueue({
 });
 assert.ok(securityPatch.items.some((item) => item.priority === "P0"));
 
+const dependencyRisk = analyzeQueue({
+  items: parseQueueInput(sampleToText("dependency-risk")),
+  capacityHours: 5,
+  now: "2026-06-04T12:00:00Z"
+});
+assert.ok(dependencyRisk.metrics.dependencyRisk >= 3, "dependency-risk signals are counted");
+assert.ok(dependencyRisk.lanes.some((lane) => lane.name === "Dependency risk" && lane.items.length >= 3));
+assert.ok(dependencyRisk.nextActions.some((action) => action.includes("lockfile")));
+assert.ok(makeMaintainerBrief(dependencyRisk).includes("Dependency risk items"));
+
+const weightedAnalysis = analyzeQueue({
+  items: [
+    {
+      number: 201,
+      type: "issue",
+      title: "Renovate dependency update needs release review",
+      labels: ["dependencies"],
+      createdAt: "2026-06-02T00:00:00Z",
+      updatedAt: "2026-06-04T00:00:00Z"
+    },
+    {
+      number: 202,
+      type: "issue",
+      title: "Release blocker without dependency impact",
+      labels: ["release-blocker"],
+      createdAt: "2026-06-02T00:00:00Z",
+      updatedAt: "2026-06-04T00:00:00Z",
+      assignees: ["maintainer"]
+    }
+  ],
+  capacityHours: 1,
+  weights: {
+    dependencyRisk: 80,
+    releaseBlocker: 0
+  },
+  now: "2026-06-04T12:00:00Z"
+});
+assert.equal(weightedAnalysis.topItems[0].ref, "ISSUE #201", "custom weights can change queue priority");
+
+const clampedWeights = analyzeQueue({
+  items: [],
+  weights: {
+    dependencyRisk: 999,
+    stale: "not a number",
+    draftPenalty: 22
+  }
+}).weights;
+assert.equal(clampedWeights.dependencyRisk, 120);
+assert.equal(clampedWeights.stale, DEFAULT_WEIGHTS.stale);
+assert.equal(clampedWeights.draftPenalty, 0);
+
+const draftPenaltyAnalysis = analyzeQueue({
+  items: [
+    {
+      number: 301,
+      type: "pull_request",
+      title: "Draft dependency experiment",
+      labels: ["dependencies"],
+      draft: true,
+      createdAt: "2026-06-03T00:00:00Z",
+      updatedAt: "2026-06-04T00:00:00Z"
+    }
+  ],
+  weights: {
+    draftPenalty: -60
+  },
+  now: "2026-06-04T12:00:00Z"
+});
+assert.ok(draftPenaltyAnalysis.items[0].signals.includes("draft"));
+assert.ok(draftPenaltyAnalysis.items[0].score < 30, "negative draft penalty suppresses draft work");
+
 const objectInput = parseQueueInput(
   JSON.stringify({
     items: [
@@ -72,7 +145,8 @@ const objectAnalysis = analyzeQueue({
   capacityHours: 1,
   now: "2026-06-04T12:00:00Z"
 });
-assert.equal(objectAnalysis.items[0].lane, "Ready to merge");
+assert.equal(objectAnalysis.items[0].lane, "Dependency risk");
+assert.ok(objectAnalysis.items[0].signals.includes("dependency risk"));
 
 assert.throws(() => parseQueueInput("{"), /Expected|JSON/);
 

@@ -20,12 +20,14 @@ body:
       label: Main signal
       options:
         - Security or privacy
+        - Dependency risk
         - Release blocker
         - Needs review
         - Ready to merge
         - Stale discussion
         - Backlog shaping
         - Documentation
+        - Scoring weights
     validations:
       required: true
   - type: textarea
