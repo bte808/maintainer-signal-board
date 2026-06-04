@@ -25,6 +25,7 @@ const required = [
   "docs/maintenance-log.md",
   "docs/demo.png",
   "examples/sanitized-maintainer-queue.json",
+  "tests/fixtures/edge-case-queue.json",
   "favicon.svg"
 ];
 
@@ -74,5 +75,10 @@ assert.ok(maintenanceLog.includes("Shareable local queue URL"), "maintenance log
 const example = JSON.parse(await readFile("examples/sanitized-maintainer-queue.json", "utf8"));
 assert.ok(Array.isArray(example.items), "sanitized example has items");
 assert.ok(JSON.stringify(example).includes("example-org/example-repo"), "sanitized example uses neutral repo names");
+
+const edgeCaseFixture = JSON.parse(await readFile("tests/fixtures/edge-case-queue.json", "utf8"));
+assert.ok(Array.isArray(edgeCaseFixture.items), "edge-case fixture has items");
+assert.ok(edgeCaseFixture.items.length >= 5, "edge-case fixture covers multiple queue shapes");
+assert.ok(!JSON.stringify(edgeCaseFixture).includes("github.com/"), "edge-case fixture avoids real repository URLs");
 
 console.log("static check ok");

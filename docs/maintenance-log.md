@@ -2,6 +2,24 @@
 
 This log records verified maintainer rounds for small public releases. It is intentionally factual: no adoption claims, no external endorsement claims, and no private queue data.
 
+## 2026-06-05 - regression fixture maintenance
+
+1. Edge-case queue fixture
+   - Added `tests/fixtures/edge-case-queue.json` with synthetic queue items for empty labels, missing `updated_at`, mixed review states, stale discussions, dependency-risk wording, and draft pull requests.
+   - Kept all fixture data synthetic and avoided real repository URLs.
+
+2. Regression assertions
+   - Added core assertions for security detection without labels, dependency detection from titles, stale fallback behavior, release-blocker lane behavior, community follow-up routing, and draft dependency handling.
+   - Added static checks so the fixture stays present and non-empty.
+
+Verification for this round:
+
+```bash
+npm test
+npm run validate
+git diff --check
+```
+
 ## 2026-06-04 - v0.3.0 maintenance rounds
 
 1. Scoring preset profiles

@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "number": 601,
+      "type": "issue",
+      "title": "Security privacy report: token redaction fails on multiline secret",
+      "labels": [],
+      "created_at": "2026-06-01T09:00:00Z",
+      "updated_at": "2026-06-03T12:30:00Z",
+      "comments": 4,
+      "author": "reporter-synthetic"
+    },
+    {
+      "number": 602,
+      "type": "pull_request",
+      "title": "Renovate lockfile update for markdown parser",
+      "labels": [],
+      "created_at": "2026-05-10T08:00:00Z",
+      "comments": 1,
+      "review_decision": "REVIEW_REQUIRED",
+      "mergeable": true
+    },
+    {
+      "number": 603,
+      "type": "pull_request",
+      "title": "Release blocker: approved migration fix",
+      "labels": ["release-blocker"],
+      "created_at": "2026-06-01T10:00:00Z",
+      "updated_at": "2026-06-04T08:00:00Z",
+      "comments": 2,
+      "review_decision": "APPROVED",
+      "mergeable": true,
+      "assignees": ["release-owner"],
+      "milestone": "v1.2"
+    },
+    {
+      "number": 604,
+      "type": "issue",
+      "title": "Long stale discussion about backlog labels",
+      "labels": ["question"],
+      "created_at": "2026-04-01T11:00:00Z",
+      "updated_at": "2026-04-10T11:00:00Z",
+      "comments": 16
+    },
+    {
+      "number": 605,
+      "type": "pull_request",
+      "title": "Draft dependency spike for SBOM export",
+      "labels": ["dependencies"],
+      "created_at": "2026-06-03T10:00:00Z",
+      "updated_at": "2026-06-04T01:00:00Z",
+      "comments": 0,
+      "draft": true,
+      "review_decision": "REVIEW_REQUIRED"
+    }
+  ]
+}

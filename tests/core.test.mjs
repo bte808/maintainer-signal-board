@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import {
   DEFAULT_WEIGHTS,
   SAMPLE_QUEUES,
@@ -9,6 +10,8 @@ import {
   sampleToText,
   toCsv
 } from "../src/maintainer-core.js";
+
+const edgeCaseFixture = JSON.parse(await readFile("tests/fixtures/edge-case-queue.json", "utf8"));
 
 assert.equal(SAMPLE_QUEUES.length, 4, "four starter queues are available");
 assert.equal(new Set(SAMPLE_QUEUES.map((queue) => queue.id)).size, SAMPLE_QUEUES.length);
@@ -204,6 +207,46 @@ const objectAnalysis = analyzeQueue({
 });
 assert.equal(objectAnalysis.items[0].lane, "Dependency risk");
 assert.ok(objectAnalysis.items[0].signals.includes("dependency risk"));
+
+const edgeCaseItems = parseQueueInput(JSON.stringify(edgeCaseFixture));
+const edgeCaseAnalysis = analyzeQueue({
+  items: edgeCaseItems,
+  capacityHours: 3,
+  now: "2026-06-04T12:00:00Z"
+});
+
+assert.equal(edgeCaseAnalysis.metrics.totalOpen, 5, "edge-case fixture keeps all synthetic items open");
+assert.equal(edgeCaseAnalysis.metrics.security, 1, "empty-label security wording is detected");
+assert.equal(edgeCaseAnalysis.metrics.dependencyRisk, 2, "dependency wording works without labels");
+assert.equal(edgeCaseAnalysis.metrics.stale, 2, "missing updated_at falls back to created_at for stale checks");
+assert.equal(edgeCaseAnalysis.metrics.capacityFit, "over capacity", "edge-case queue exceeds a small capacity budget");
+
+const securityEdge = edgeCaseAnalysis.items.find((item) => item.number === 601);
+assert.equal(securityEdge.lane, "Security and quality");
+assert.ok(securityEdge.signals.includes("security"));
+assert.ok(securityEdge.signals.includes("needs owner"));
+
+const missingUpdatedAt = edgeCaseAnalysis.items.find((item) => item.number === 602);
+assert.equal(missingUpdatedAt.lane, "Dependency risk");
+assert.ok(missingUpdatedAt.staleDays >= 21, "missing updated_at should not hide stale dependency work");
+assert.ok(missingUpdatedAt.signals.includes("needs review"));
+
+const approvedRelease = edgeCaseAnalysis.items.find((item) => item.number === 603);
+assert.equal(approvedRelease.lane, "Release blockers");
+assert.ok(approvedRelease.signals.includes("merge candidate"));
+
+const staleDiscussion = edgeCaseAnalysis.items.find((item) => item.number === 604);
+assert.equal(staleDiscussion.lane, "Community follow-up");
+assert.ok(staleDiscussion.signals.includes("discussion heavy"));
+assert.ok(staleDiscussion.signals.includes("old"));
+
+const draftDependency = edgeCaseAnalysis.items.find((item) => item.number === 605);
+assert.equal(draftDependency.lane, "Dependency risk");
+assert.ok(draftDependency.signals.includes("draft"));
+assert.ok(!draftDependency.signals.includes("needs review"), "draft dependency spikes should not enter review queue");
+
+assert.ok(makeMaintainerBrief(edgeCaseAnalysis).includes("ISSUE #601"));
+assert.ok(toCsv(edgeCaseAnalysis).includes("dependency risk"));
 
 assert.throws(() => parseQueueInput("{"), /Expected|JSON/);
 
