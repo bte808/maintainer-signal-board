@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.2 - 2026-06-05
+
+- Added a `gh search issues --json ...` fixture for cross-repository issue triage sweeps.
+- Verified closed search-result issues do not inflate open maintainer load.
+- Documented the issue search export command alongside the PR search export.
+- Expanded core and static checks for the new search-result shape.
+
 ## 0.7.1 - 2026-06-05
 
 - Added a `gh search prs --json ...` fixture for cross-repository maintainer review sweeps.

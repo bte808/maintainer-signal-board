@@ -2,6 +2,30 @@
 
 This log records verified maintainer rounds for small public releases. It is intentionally factual: no adoption claims, no external endorsement claims, and no private queue data.
 
+## 2026-06-05 - GitHub search issue import maintenance
+
+1. Issue search import
+   - Added a synthetic `gh search issues --json ...` fixture for cross-repository issue triage sweeps.
+   - Documented a public-field-only issue search export command for maintainers who triage issues across repos.
+
+2. Closed-state filtering
+   - Added a regression assertion so closed search-result issues do not inflate open maintainer load.
+   - Confirmed stale and discussion-heavy open issue rows still route to community follow-up.
+
+3. Verification
+   - Expanded static checks to require the new issue-search fixture and export recipe note.
+   - Kept the fixture scoped to neutral `example-org/example-repo` data.
+
+Verification for this round:
+
+```bash
+npm test
+node --check src/maintainer-core.js
+node --check tests/core.test.mjs
+node --check scripts/check.mjs
+git diff --check
+```
+
 ## 2026-06-05 - GitHub search PR import maintenance
 
 1. Search-result import

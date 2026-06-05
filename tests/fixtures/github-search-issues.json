@@ -1,0 +1,36 @@
+[
+  {
+    "number": 1101,
+    "url": "https://github.com/example-org/example-repo/issues/1101",
+    "title": "Stale community issue needs maintainer routing",
+    "labels": [
+      {
+        "name": "question"
+      }
+    ],
+    "repository": {
+      "nameWithOwner": "example-org/example-repo"
+    },
+    "updatedAt": "2026-05-01T10:00:00Z",
+    "state": "OPEN",
+    "comments": {
+      "totalCount": 14
+    }
+  },
+  {
+    "number": 1102,
+    "url": "https://github.com/example-org/example-repo/issues/1102",
+    "title": "Closed security report should not count as open load",
+    "labels": [
+      {
+        "name": "security"
+      }
+    ],
+    "repository": {
+      "nameWithOwner": "example-org/example-repo"
+    },
+    "updatedAt": "2026-06-03T10:00:00Z",
+    "state": "CLOSED",
+    "comments": 2
+  }
+]

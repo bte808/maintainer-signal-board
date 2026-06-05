@@ -24,13 +24,14 @@ The board accepts these JSON shapes:
 - A normalized object with an `items` array.
 - A mixed preset object with `issues` and `pullRequests` arrays.
 - GraphQL-style objects with `data.nodes`.
-- Search-result arrays from `gh search prs --json ...`.
+- Search-result arrays from `gh search issues --json ...` or `gh search prs --json ...`.
 
 Synthetic examples are available in:
 
 - `tests/fixtures/github-cli-issues.json`
 - `tests/fixtures/github-cli-pull-requests.json`
 - `tests/fixtures/github-cli-mixed-queue.json`
+- `tests/fixtures/github-search-issues.json`
 - `tests/fixtures/github-search-prs.json`
 
 ## Issues
@@ -116,7 +117,17 @@ Use the `tests/fixtures/github-cli-*.json` files when you want smaller examples 
 
 ## Search Results
 
-For cross-repository review sweeps, export open search results with only public fields:
+For cross-repository issue triage sweeps, export open search results with only public fields:
+
+```bash
+gh search issues \
+  --state open \
+  --limit 100 \
+  --json number,title,url,repository,updatedAt,state,labels,comments \
+  > search-issues.json
+```
+
+For cross-repository PR review sweeps, export open search results with only public fields:
 
 ```bash
 gh search prs \
