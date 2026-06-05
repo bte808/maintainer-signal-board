@@ -1,0 +1,42 @@
+{
+  "total_count": 2,
+  "incomplete_results": false,
+  "items": [
+    {
+      "number": 1201,
+      "url": "https://api.github.com/repos/example-org/example-repo/issues/1201",
+      "repository_url": "https://api.github.com/repos/example-org/example-repo",
+      "html_url": "https://github.com/example-org/example-repo/issues/1201",
+      "title": "Release blocker: REST search import loses repository context",
+      "labels": [
+        {
+          "name": "release-blocker"
+        }
+      ],
+      "created_at": "2026-06-01T10:00:00Z",
+      "updated_at": "2026-06-04T10:00:00Z",
+      "state": "open",
+      "comments": 3
+    },
+    {
+      "number": 1202,
+      "url": "https://api.github.com/repos/example-org/example-repo/issues/1202",
+      "repository_url": "https://api.github.com/repos/example-org/example-repo",
+      "html_url": "https://github.com/example-org/example-repo/pull/1202",
+      "title": "Closed REST search pull request should stay out of open load",
+      "labels": [
+        {
+          "name": "dependencies"
+        }
+      ],
+      "created_at": "2026-06-01T10:00:00Z",
+      "updated_at": "2026-06-04T10:00:00Z",
+      "state": "closed",
+      "comments": 1,
+      "pull_request": {
+        "url": "https://api.github.com/repos/example-org/example-repo/pulls/1202",
+        "html_url": "https://github.com/example-org/example-repo/pull/1202"
+      }
+    }
+  ]
+}

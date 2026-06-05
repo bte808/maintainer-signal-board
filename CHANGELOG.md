@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.3 - 2026-06-05
+
+- Added a REST Search API fixture with the raw `{ items: [...] }` issue-search shape.
+- Derived `OWNER/REPO` from `repository_url` and GitHub URLs so REST search rows keep routing context.
+- Verified closed REST search rows do not inflate open maintainer load.
+- Documented the REST search export path and expanded static checks for it.
+
 ## 0.7.2 - 2026-06-05
 
 - Added a `gh search issues --json ...` fixture for cross-repository issue triage sweeps.

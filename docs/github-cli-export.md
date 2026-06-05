@@ -24,6 +24,7 @@ The board accepts these JSON shapes:
 - A normalized object with an `items` array.
 - A mixed preset object with `issues` and `pullRequests` arrays.
 - GraphQL-style objects with `data.nodes`.
+- REST Search API objects with `items`.
 - Search-result arrays from `gh search issues --json ...` or `gh search prs --json ...`.
 
 Synthetic examples are available in:
@@ -31,6 +32,7 @@ Synthetic examples are available in:
 - `tests/fixtures/github-cli-issues.json`
 - `tests/fixtures/github-cli-pull-requests.json`
 - `tests/fixtures/github-cli-mixed-queue.json`
+- `tests/fixtures/github-rest-search-issues.json`
 - `tests/fixtures/github-search-issues.json`
 - `tests/fixtures/github-search-prs.json`
 
@@ -140,12 +142,22 @@ gh search prs \
 
 Merged rows from broader searches are treated as closed queue work, so they will not inflate the open maintainer load.
 
+## REST Search API
+
+The board also accepts the raw REST Search API object shape with an `items` array. This is useful when a maintainer saves direct API output for later triage:
+
+```bash
+gh api 'search/issues?q=repo:OWNER/REPO+state:open+type:issue' > rest-search-issues.json
+```
+
+When `repository_url` is present, the board derives the `OWNER/REPO` reference from it so exported briefs and CSV rows keep enough routing context.
+
 ## Field Notes
 
 The board reads these fields when they are present:
 
 - Required: `number` or `id`, plus `title` or `name`.
-- Helpful for routing: `url`, `type`, `labels`, `repository`, `reviewDecision`, `review_decision`, `mergeable`, `isDraft`, `draft`, `state`, and `milestone`.
+- Helpful for routing: `url`, `html_url`, `repository`, `repository_url`, `reviewDecision`, `review_decision`, `mergeable`, `isDraft`, `draft`, `state`, and `milestone`.
 - Helpful for load estimates: `comments`, `createdAt`, `created_at`, `updatedAt`, `updated_at`, `assignees`, and `author`.
 - Ignored safely: color, label descriptions, avatar URLs, node IDs, and other GitHub metadata that the board does not score.
 

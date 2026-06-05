@@ -674,7 +674,9 @@ function normalizeItem(item, index, now) {
   const assignees = normalizePeople(item.assignees ?? item.assignee ?? []);
   const number = Number(item.number ?? item.issueNumber ?? item.pullRequestNumber ?? item.id ?? index + 1);
   const state = normalizeState(item.state);
-  const repository = normalizeRepository(item.repository || item.repositoryName || item.repo || "");
+  const repository = normalizeRepository(
+    item.repository || item.repositoryName || item.repo || item.repository_url || item.repositoryUrl || item.html_url || item.htmlUrl || ""
+  );
   const prefix = type === "pr" ? "PR" : "ISSUE";
 
   return {
@@ -908,8 +910,14 @@ function normalizeState(value) {
 
 function normalizeRepository(value) {
   if (!value) return "";
-  if (typeof value === "string") return value;
+  if (typeof value === "string") return repositoryNameFromUrl(value) || value;
   return value.nameWithOwner || value.fullName || value.full_name || value.name || "";
+}
+
+function repositoryNameFromUrl(value) {
+  const text = String(value || "");
+  const match = text.match(/(?:github\.com\/|api\.github\.com\/repos\/)([^/\s]+\/[^/\s#?]+)/i);
+  return match ? match[1] : "";
 }
 
 function normalizeBoolean(value) {

@@ -2,6 +2,30 @@
 
 This log records verified maintainer rounds for small public releases. It is intentionally factual: no adoption claims, no external endorsement claims, and no private queue data.
 
+## 2026-06-05 - REST search import maintenance
+
+1. REST search import
+   - Added a synthetic raw REST Search API fixture with the `{ items: [...] }` issue-search shape.
+   - Documented a direct `gh api search/issues` export path for maintainers who save API output.
+
+2. Repository routing
+   - Derived `OWNER/REPO` from `repository_url` and GitHub URLs.
+   - Added a regression assertion so REST search rows keep repository context in maintainer briefs and CSV exports.
+
+3. Verification
+   - Confirmed closed REST search rows do not inflate open maintainer load.
+   - Expanded static checks to require the new fixture and REST export recipe note.
+
+Verification for this round:
+
+```bash
+npm test
+node --check src/maintainer-core.js
+node --check tests/core.test.mjs
+node --check scripts/check.mjs
+git diff --check
+```
+
 ## 2026-06-05 - GitHub search issue import maintenance
 
 1. Issue search import

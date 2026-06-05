@@ -17,6 +17,7 @@ const githubCliPullRequestsFixture = JSON.parse(await readFile("tests/fixtures/g
 const githubCliMixedFixture = JSON.parse(await readFile("tests/fixtures/github-cli-mixed-queue.json", "utf8"));
 const githubSearchPrsFixture = JSON.parse(await readFile("tests/fixtures/github-search-prs.json", "utf8"));
 const githubSearchIssuesFixture = JSON.parse(await readFile("tests/fixtures/github-search-issues.json", "utf8"));
+const githubRestSearchIssuesFixture = JSON.parse(await readFile("tests/fixtures/github-rest-search-issues.json", "utf8"));
 
 assert.equal(SAMPLE_QUEUES.length, 7, "four starter queues plus three drill queues are available");
 assert.equal(new Set(SAMPLE_QUEUES.map((queue) => queue.id)).size, SAMPLE_QUEUES.length);
@@ -368,6 +369,16 @@ assert.equal(githubSearchIssuesAnalysis.items[0].type, "issue");
 assert.equal(githubSearchIssuesAnalysis.items[0].lane, "Community follow-up");
 assert.ok(githubSearchIssuesAnalysis.items[0].signals.includes("discussion heavy"));
 assert.ok(githubSearchIssuesAnalysis.items[0].signals.includes("stale"));
+
+const githubRestSearchIssuesAnalysis = analyzeQueue({
+  items: parseQueueInput(JSON.stringify(githubRestSearchIssuesFixture)),
+  capacityHours: 1,
+  now: "2026-06-04T12:00:00Z"
+});
+assert.equal(githubRestSearchIssuesAnalysis.metrics.totalOpen, 1, "closed REST search rows are not treated as open queue work");
+assert.equal(githubRestSearchIssuesAnalysis.items[0].ref, "ISSUE example-org/example-repo#1201");
+assert.equal(githubRestSearchIssuesAnalysis.items[0].lane, "Release blockers");
+assert.ok(githubRestSearchIssuesAnalysis.items[0].signals.includes("release blocker"));
 
 assert.throws(() => parseQueueInput("{"), /Expected|JSON/);
 

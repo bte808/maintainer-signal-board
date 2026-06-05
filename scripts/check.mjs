@@ -29,6 +29,7 @@ const required = [
   "tests/fixtures/github-cli-issues.json",
   "tests/fixtures/github-cli-pull-requests.json",
   "tests/fixtures/github-cli-mixed-queue.json",
+  "tests/fixtures/github-rest-search-issues.json",
   "tests/fixtures/github-search-issues.json",
   "tests/fixtures/github-search-prs.json",
   "favicon.svg"
@@ -43,7 +44,7 @@ const pkg = JSON.parse(await readFile("package.json", "utf8"));
 assert.deepEqual(pkg.dependencies || {}, {}, "runtime dependencies stay empty");
 assert.equal(pkg.private, false, "package is publishable metadata");
 assert.equal(pkg.license, "MIT");
-assert.equal(pkg.version, "0.7.2");
+assert.equal(pkg.version, "0.7.3");
 
 const html = await readFile("index.html", "utf8");
 assert.ok(html.includes('type="module" src="src/app.js"'), "HTML loads app module");
@@ -115,8 +116,11 @@ assert.ok(exportDoc.includes("Do not export secrets"), "export doc includes sani
 assert.ok(exportDoc.includes("github-cli-issues.json"), "export doc links issues preset fixture");
 assert.ok(exportDoc.includes("github-cli-pull-requests.json"), "export doc links pull request preset fixture");
 assert.ok(exportDoc.includes("github-cli-mixed-queue.json"), "export doc links mixed preset fixture");
+assert.ok(exportDoc.includes("github-rest-search-issues.json"), "export doc links REST search fixture");
 assert.ok(exportDoc.includes("github-search-issues.json"), "export doc links gh issue search fixture");
 assert.ok(exportDoc.includes("github-search-prs.json"), "export doc links gh search fixture");
+assert.ok(exportDoc.includes("REST Search API"), "export doc includes REST search API section");
+assert.ok(exportDoc.includes("repository_url"), "export doc explains repository_url routing");
 assert.ok(exportDoc.includes("gh search issues"), "export doc includes issue search export command");
 assert.ok(exportDoc.includes("gh search prs"), "export doc includes PR search export command");
 assert.ok(exportDoc.includes("issues") && exportDoc.includes("pullRequests"), "export doc explains mixed queue shape");
@@ -141,6 +145,7 @@ const githubCliFixtures = [
   "tests/fixtures/github-cli-issues.json",
   "tests/fixtures/github-cli-pull-requests.json",
   "tests/fixtures/github-cli-mixed-queue.json",
+  "tests/fixtures/github-rest-search-issues.json",
   "tests/fixtures/github-search-issues.json",
   "tests/fixtures/github-search-prs.json"
 ];
