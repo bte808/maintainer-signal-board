@@ -146,6 +146,7 @@ function bindControls() {
     renderEvidenceLog();
     setStatus("Log cleared");
   });
+  document.addEventListener("keydown", handleKeyboardShortcut);
 }
 
 function renderInitial() {
@@ -221,7 +222,7 @@ function renderLane(lane) {
     ? lane.items.map((item) => `<li>${renderItem(item)}</li>`).join("")
     : "<li class=\"empty\">Empty</li>";
   return `
-    <section class="lane" data-lane="${escapeHtml(lane.name)}">
+    <section class="lane" data-lane="${escapeHtml(lane.name)}" tabindex="-1" aria-label="${escapeHtml(lane.name)} lane">
       <header>
         <h3>${escapeHtml(lane.name)}</h3>
         <span>${lane.items.length}</span>
@@ -290,7 +291,7 @@ function addEvidenceLog() {
 async function copyBrief() {
   if (!elements.brief.value) return;
   try {
-    await navigator.clipboard.writeText(elements.brief.value);
+    await writeClipboardWithTimeout(elements.brief.value);
     setStatus("Brief copied");
   } catch {
     elements.brief.focus();
@@ -298,6 +299,68 @@ async function copyBrief() {
     document.execCommand("copy");
     setStatus("Brief selected");
   }
+}
+
+function writeClipboardWithTimeout(text) {
+  if (!navigator.clipboard?.writeText) return Promise.reject(new Error("Clipboard unavailable"));
+  return Promise.race([
+    navigator.clipboard.writeText(text),
+    new Promise((_, reject) => {
+      window.setTimeout(() => reject(new Error("Clipboard timeout")), 400);
+    })
+  ]);
+}
+
+function handleKeyboardShortcut(event) {
+  if (isShortcutDisabled(event.target)) return;
+  if (!event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+
+  const key = event.key.toLowerCase();
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    focusAdjacentLane(1);
+    return;
+  }
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    focusAdjacentLane(-1);
+    return;
+  }
+  if (key === "c") {
+    event.preventDefault();
+    toggleCompactViewShortcut();
+    return;
+  }
+  if (key === "b") {
+    event.preventDefault();
+    copyBrief();
+  }
+}
+
+function isShortcutDisabled(target) {
+  if (!(target instanceof Element)) return false;
+  return Boolean(target.closest("input, textarea, select, button, [contenteditable='true']"));
+}
+
+function focusAdjacentLane(direction) {
+  const lanes = [...elements.lanes.querySelectorAll(".lane")];
+  if (!lanes.length) return;
+  const activeLane = document.activeElement?.closest?.(".lane");
+  const activeIndex = lanes.indexOf(activeLane);
+  const nextIndex = activeIndex === -1
+    ? direction > 0 ? 0 : lanes.length - 1
+    : (activeIndex + direction + lanes.length) % lanes.length;
+  const lane = lanes[nextIndex];
+  lane.focus();
+  setStatus(`Focused ${lane.dataset.lane}`);
+}
+
+function toggleCompactViewShortcut() {
+  state.compactView = !elements.compactView.checked;
+  elements.compactView.checked = state.compactView;
+  saveState();
+  if (latestAnalysis) renderAnalysis(latestAnalysis);
+  setStatus(state.compactView ? "Compact view on" : "Compact view off");
 }
 
 function loadState() {

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 - 2026-06-05
+
+- Added keyboard shortcuts for repeated lane review: next lane, previous lane, compact-view toggle, and maintainer brief copy.
+- Kept shortcuts inactive while form controls or editable regions have focus so mouse-first and input-first workflows stay unchanged.
+- Added a bounded clipboard fallback so brief-copy shortcuts recover when browser clipboard writes hang or are blocked.
+- Added focus styling for programmatically focused maintainer lanes.
+- Expanded browser verification for lane navigation shortcuts, compact-view shortcuts, brief-copy shortcuts, and input-focus shortcut guards.
+
 ## 0.5.0 - 2026-06-05
 
 - Added three synthetic drill queues for release candidate, security hardening, and dependency review practice.

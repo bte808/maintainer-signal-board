@@ -14,7 +14,7 @@ Live demo: <https://bte808.github.io/maintainer-signal-board/>
 
 ## Project Status
 
-Maintainer Signal Board is an early `v0.5.0` static OSS tool. It is built to demonstrate a practical maintainer workflow, not to claim broad adoption or critical ecosystem status. The sample data is synthetic, and this project is not affiliated with OpenAI or endorsed by OpenAI.
+Maintainer Signal Board is an early `v0.6.0` static OSS tool. It is built to demonstrate a practical maintainer workflow, not to claim broad adoption or critical ecosystem status. The sample data is synthetic, and this project is not affiliated with OpenAI or endorsed by OpenAI.
 
 Maintenance signals:
 
@@ -52,6 +52,7 @@ It is useful for:
 - Lets maintainers apply scoring profiles, adjust scoring weights, and reset to documented defaults.
 - Creates shareable local URLs for synthetic or sanitized queues without sending data to a server.
 - Filters the board to a single maintainer lane and offers a compact view for larger queues.
+- Supports keyboard shortcuts for repeated lane review when no form field is focused.
 - Groups work into maintainer lanes:
   - Security and quality.
   - Dependency risk.
@@ -79,6 +80,15 @@ The built-in queues are synthetic:
 - Dependency review drill.
 
 They are intentionally small and readable. They are fixtures for workflow review, not claims about real repository usage.
+
+## Keyboard Shortcuts
+
+Shortcuts are inactive while an input, textarea, select, button, or editable region has focus.
+
+- `Alt+ArrowRight`: move focus to the next visible lane.
+- `Alt+ArrowLeft`: move focus to the previous visible lane.
+- `Alt+C`: toggle compact view.
+- `Alt+B`: copy the current maintainer brief.
 
 ## Input Shape
 
@@ -142,7 +152,7 @@ npm run validate
 git diff --check
 ```
 
-`npm test` runs the core queue-analysis tests plus static wiring checks. `npm run verify:browser` starts a local server, opens temporary headless Chrome sessions, loads the board at desktop and `390 x 844` mobile sizes, loads starter and drill samples, analyzes queue data, checks lane filtering, toggles compact view, checks generated briefs, logs an action, and fails on horizontal overflow.
+`npm test` runs the core queue-analysis tests plus static wiring checks. `npm run verify:browser` starts a local server, opens temporary headless Chrome sessions, loads the board at desktop and `390 x 844` mobile sizes, loads starter and drill samples, analyzes queue data, checks lane filtering, exercises lane navigation and compact-view keyboard shortcuts, checks generated briefs, logs an action, and fails on horizontal overflow.
 
 To refresh the README screenshot:
 
@@ -163,7 +173,6 @@ SAVE_SCREENSHOT=docs/demo.png npm run verify:browser
 
 ## Roadmap
 
-- Add [keyboard shortcuts for repeated lane review](https://github.com/bte808/maintainer-signal-board/issues/14).
 - Add [saved view presets for recurring maintainer rituals](https://github.com/bte808/maintainer-signal-board/issues/12).
 
 ## Security and Privacy

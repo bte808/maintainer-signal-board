@@ -41,6 +41,7 @@ const pkg = JSON.parse(await readFile("package.json", "utf8"));
 assert.deepEqual(pkg.dependencies || {}, {}, "runtime dependencies stay empty");
 assert.equal(pkg.private, false, "package is publishable metadata");
 assert.equal(pkg.license, "MIT");
+assert.equal(pkg.version, "0.6.0");
 
 const html = await readFile("index.html", "utf8");
 assert.ok(html.includes('type="module" src="src/app.js"'), "HTML loads app module");
@@ -52,11 +53,20 @@ assert.ok(html.includes("data-testid=\"weight-profile\""), "weight profile selec
 assert.ok(html.includes("data-testid=\"share-url\""), "share URL action is wired");
 assert.ok(html.includes("data-testid=\"lane-filter\""), "lane filter is wired");
 assert.ok(html.includes("data-testid=\"compact-view\""), "compact view toggle is wired");
+assert.ok(!html.includes("Alt+"), "shortcut help stays out of the app shell");
 
 const css = await readFile("styles.css", "utf8");
 assert.ok(css.includes("@media (max-width: 760px)"), "mobile breakpoint exists");
 assert.ok(css.includes(".lanes.is-compact"), "compact lane layout exists");
+assert.ok(css.includes(".lane:focus"), "keyboard-focused lanes have visible focus styling");
 assert.ok(!css.includes("letter-spacing: -"), "no negative letter spacing");
+
+const app = await readFile("src/app.js", "utf8");
+assert.ok(app.includes("handleKeyboardShortcut"), "keyboard shortcut handler is wired");
+assert.ok(app.includes("focusAdjacentLane"), "lane navigation shortcut helper exists");
+assert.ok(app.includes("toggleCompactViewShortcut"), "compact shortcut helper exists");
+assert.ok(app.includes("writeClipboardWithTimeout"), "copy shortcut has clipboard fallback timeout");
+assert.ok(app.includes("ArrowRight") && app.includes("ArrowLeft"), "lane navigation shortcuts are defined");
 
 const readme = await readFile("README.md", "utf8");
 assert.ok(readme.includes("Maintainer Signal Board"), "README names the project");
@@ -73,6 +83,8 @@ assert.ok(readme.includes("sanitized-maintainer-queue.json"), "README links the 
 assert.ok(readme.includes("Release candidate drill"), "README documents the release candidate drill");
 assert.ok(readme.includes("Security hardening drill"), "README documents the security hardening drill");
 assert.ok(readme.includes("Dependency review drill"), "README documents the dependency review drill");
+assert.ok(readme.includes("Keyboard Shortcuts"), "README documents shortcuts");
+assert.ok(readme.includes("Alt+ArrowRight") && readme.includes("Alt+C") && readme.includes("Alt+B"), "README lists shortcut coverage");
 
 const core = await readFile("src/maintainer-core.js", "utf8");
 for (const sampleId of ["release-candidate-drill", "security-hardening-drill", "dependency-review-drill"]) {
@@ -91,6 +103,7 @@ assert.ok(exportDoc.includes("github-cli-mixed-queue.json"), "export doc links m
 assert.ok(exportDoc.includes("issues") && exportDoc.includes("pullRequests"), "export doc explains mixed queue shape");
 
 const maintenanceLog = await readFile("docs/maintenance-log.md", "utf8");
+assert.ok(maintenanceLog.includes("keyboard shortcut maintenance"), "maintenance log records keyboard shortcut work");
 assert.ok(maintenanceLog.includes("drill queue maintenance"), "maintenance log records drill queue work");
 assert.ok(maintenanceLog.includes("v0.3.0 maintenance rounds"), "maintenance log records this release");
 assert.ok(maintenanceLog.includes("Shareable local queue URL"), "maintenance log records share URL work");

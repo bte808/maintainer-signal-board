@@ -2,6 +2,29 @@
 
 This log records verified maintainer rounds for small public releases. It is intentionally factual: no adoption claims, no external endorsement claims, and no private queue data.
 
+## 2026-06-05 - keyboard shortcut maintenance
+
+1. Lane review shortcuts
+   - Added shortcuts to move focus between visible maintainer lanes.
+   - Added a compact-view shortcut for repeated review sessions.
+   - Added a maintainer brief copy shortcut.
+   - Added a bounded clipboard fallback so copy shortcuts recover when clipboard writes hang or are blocked.
+
+2. Input safety
+   - Kept shortcuts inactive while inputs, textareas, selects, buttons, or editable regions have focus.
+   - Added visible focus treatment for programmatically focused lanes without adding visible in-app shortcut help text.
+
+3. Browser verification
+   - Expanded desktop and mobile browser checks to cover lane navigation shortcuts, compact-view shortcuts, brief-copy shortcuts, and input-focus shortcut guards.
+   - Kept the mobile overflow check at `390 x 844`.
+
+Verification for this round:
+
+```bash
+npm run validate
+git diff --check
+```
+
 ## 2026-06-05 - drill queue maintenance
 
 1. Synthetic drill queues

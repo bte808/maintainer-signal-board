@@ -359,6 +359,12 @@ textarea {
   background: #fcfdfb;
 }
 
+.lane:focus {
+  outline: 3px solid rgba(47, 98, 194, 0.28);
+  outline-offset: 2px;
+  border-color: var(--blue);
+}
+
 .lane header {
   display: flex;
   justify-content: space-between;

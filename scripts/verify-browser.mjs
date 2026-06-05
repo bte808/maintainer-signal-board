@@ -205,8 +205,16 @@ async function runViewportCheck(cdp, viewport) {
   const details = await evaluate(
     cdp,
     sessionId,
-    `(() => {
+    `(async () => {
       const byTest = (id) => document.querySelector('[data-testid="' + id + '"]');
+      const shortcut = (key, target = document.activeElement || document.body) => {
+        target.dispatchEvent(new KeyboardEvent('keydown', {
+          key,
+          altKey: true,
+          bubbles: true,
+          cancelable: true
+        }));
+      };
       byTest('sample-select').value = 'dependency-risk';
       byTest('sample-select').dispatchEvent(new Event('change', { bubbles: true }));
       byTest('load-sample').click();
@@ -226,6 +234,22 @@ async function runViewportCheck(cdp, viewport) {
       byTest('compact-view').dispatchEvent(new Event('change', { bubbles: true }));
       const lanesBeforeFilter = document.querySelectorAll('.lane').length;
       const pageTextBeforeFilter = document.body.innerText;
+      const initialCopyRect = byTest('copy-brief').getBoundingClientRect();
+      const initialCopyVisible = initialCopyRect.top >= 0 && initialCopyRect.bottom <= window.innerHeight;
+      shortcut('ArrowRight');
+      const shortcutFirstLane = document.activeElement?.dataset?.lane || '';
+      shortcut('ArrowRight');
+      const shortcutSecondLane = document.activeElement?.dataset?.lane || '';
+      byTest('queue-input').focus();
+      const compactBeforeInputShortcut = byTest('compact-view').checked;
+      shortcut('c');
+      const compactAfterInputShortcut = byTest('compact-view').checked;
+      byTest('queue-input').blur();
+      shortcut('c');
+      const compactAfterShortcut = byTest('compact-view').checked;
+      shortcut('b', document.body);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const statusAfterCopyShortcut = byTest('status').textContent;
       byTest('lane-filter').value = 'Dependency risk';
       byTest('lane-filter').dispatchEvent(new Event('change', { bubbles: true }));
       const filteredLanes = document.querySelectorAll('.lane').length;
@@ -236,7 +260,6 @@ async function runViewportCheck(cdp, viewport) {
       byTest('share-url').click();
       const brief = byTest('brief-output').value;
       const pageText = document.body.innerText;
-      const copyRect = byTest('copy-brief').getBoundingClientRect();
       const compactEnabled = byTest('lanes').classList.contains('is-compact');
       const laneFilterValue = byTest('lane-filter').value;
       const queueItems = document.querySelectorAll('.queue-item').length;
@@ -272,6 +295,12 @@ async function runViewportCheck(cdp, viewport) {
         dependencyProfileApplied,
         dependencyWeightReset: byTest('weight-dependency-risk').value === '24',
         shareHashReady: window.location.hash.startsWith('#board='),
+        shortcutFirstLane,
+        shortcutSecondLane,
+        inputShortcutIgnored: compactAfterInputShortcut === compactBeforeInputShortcut,
+        compactShortcutWorked: compactAfterShortcut !== compactBeforeInputShortcut,
+        statusAfterCopyShortcut,
+        copyShortcutWorked: statusAfterCopyShortcut === 'Brief copied' || statusAfterCopyShortcut === 'Brief selected',
         queueItems,
         logItems: byTest('evidence-log').querySelectorAll('li').length,
         briefHasDependencyRisk: brief.includes('Dependency risk items'),
@@ -281,7 +310,7 @@ async function runViewportCheck(cdp, viewport) {
         pageHasCapacity: pageText.includes('over capacity') || pageText.includes('fits'),
         sampleChecks,
         overflow: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth),
-        copyVisible: copyRect.top >= 0 && copyRect.bottom <= window.innerHeight
+        copyVisible: initialCopyVisible
       };
     })()`
   );
@@ -313,6 +342,11 @@ async function runViewportCheck(cdp, viewport) {
     details.dependencyProfileApplied &&
     details.dependencyWeightReset &&
     details.shareHashReady &&
+    details.shortcutFirstLane === "Security and quality" &&
+    details.shortcutSecondLane === "Dependency risk" &&
+    details.inputShortcutIgnored &&
+    details.compactShortcutWorked &&
+    details.copyShortcutWorked &&
     details.queueItems >= 3 &&
     details.logItems >= 1 &&
     details.briefHasDependencyRisk &&

@@ -1,6 +1,6 @@
 {
   "name": "maintainer-signal-board",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Local-first maintainer triage board for issues, pull requests, release blockers, and review load.",
   "type": "module",
   "private": false,
