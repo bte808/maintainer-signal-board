@@ -24,12 +24,14 @@ The board accepts these JSON shapes:
 - A normalized object with an `items` array.
 - A mixed preset object with `issues` and `pullRequests` arrays.
 - GraphQL-style objects with `data.nodes`.
+- Search-result arrays from `gh search prs --json ...`.
 
 Synthetic examples are available in:
 
 - `tests/fixtures/github-cli-issues.json`
 - `tests/fixtures/github-cli-pull-requests.json`
 - `tests/fixtures/github-cli-mixed-queue.json`
+- `tests/fixtures/github-search-prs.json`
 
 ## Issues
 
@@ -112,12 +114,27 @@ To test the shape before exporting a real repository queue, paste `examples/sani
 
 Use the `tests/fixtures/github-cli-*.json` files when you want smaller examples for the three common CLI preset shapes.
 
+## Search Results
+
+For cross-repository review sweeps, export open search results with only public fields:
+
+```bash
+gh search prs \
+  --author "@me" \
+  --state open \
+  --limit 100 \
+  --json number,title,url,repository,updatedAt,state,isDraft \
+  > search-prs.json
+```
+
+Merged rows from broader searches are treated as closed queue work, so they will not inflate the open maintainer load.
+
 ## Field Notes
 
 The board reads these fields when they are present:
 
 - Required: `number` or `id`, plus `title` or `name`.
-- Helpful for routing: `url`, `type`, `labels`, `reviewDecision`, `review_decision`, `mergeable`, `isDraft`, `draft`, and `milestone`.
+- Helpful for routing: `url`, `type`, `labels`, `repository`, `reviewDecision`, `review_decision`, `mergeable`, `isDraft`, `draft`, `state`, and `milestone`.
 - Helpful for load estimates: `comments`, `createdAt`, `created_at`, `updatedAt`, `updated_at`, `assignees`, and `author`.
 - Ignored safely: color, label descriptions, avatar URLs, node IDs, and other GitHub metadata that the board does not score.
 

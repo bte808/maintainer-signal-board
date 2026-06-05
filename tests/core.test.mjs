@@ -15,6 +15,7 @@ const edgeCaseFixture = JSON.parse(await readFile("tests/fixtures/edge-case-queu
 const githubCliIssuesFixture = JSON.parse(await readFile("tests/fixtures/github-cli-issues.json", "utf8"));
 const githubCliPullRequestsFixture = JSON.parse(await readFile("tests/fixtures/github-cli-pull-requests.json", "utf8"));
 const githubCliMixedFixture = JSON.parse(await readFile("tests/fixtures/github-cli-mixed-queue.json", "utf8"));
+const githubSearchPrsFixture = JSON.parse(await readFile("tests/fixtures/github-search-prs.json", "utf8"));
 
 assert.equal(SAMPLE_QUEUES.length, 7, "four starter queues plus three drill queues are available");
 assert.equal(new Set(SAMPLE_QUEUES.map((queue) => queue.id)).size, SAMPLE_QUEUES.length);
@@ -344,6 +345,16 @@ const mixedDraft = githubCliMixedAnalysis.items.find((item) => item.number === 9
 assert.equal(mixedDraft.type, "pr");
 assert.ok(mixedDraft.signals.includes("dependency risk"));
 assert.ok(mixedDraft.signals.includes("draft"));
+
+const githubSearchPrsAnalysis = analyzeQueue({
+  items: parseQueueInput(JSON.stringify(githubSearchPrsFixture)),
+  capacityHours: 1,
+  now: "2026-06-04T12:00:00Z"
+});
+assert.equal(githubSearchPrsAnalysis.metrics.totalOpen, 1, "merged gh search PR rows are not treated as open queue work");
+assert.equal(githubSearchPrsAnalysis.items[0].ref, "PR example-org/example-repo#1001");
+assert.equal(githubSearchPrsAnalysis.items[0].type, "pr");
+assert.ok(githubSearchPrsAnalysis.items[0].signals.includes("needs review"));
 
 assert.throws(() => parseQueueInput("{"), /Expected|JSON/);
 

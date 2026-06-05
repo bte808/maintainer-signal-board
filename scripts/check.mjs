@@ -29,6 +29,7 @@ const required = [
   "tests/fixtures/github-cli-issues.json",
   "tests/fixtures/github-cli-pull-requests.json",
   "tests/fixtures/github-cli-mixed-queue.json",
+  "tests/fixtures/github-search-prs.json",
   "favicon.svg"
 ];
 
@@ -41,7 +42,7 @@ const pkg = JSON.parse(await readFile("package.json", "utf8"));
 assert.deepEqual(pkg.dependencies || {}, {}, "runtime dependencies stay empty");
 assert.equal(pkg.private, false, "package is publishable metadata");
 assert.equal(pkg.license, "MIT");
-assert.equal(pkg.version, "0.7.0");
+assert.equal(pkg.version, "0.7.1");
 
 const html = await readFile("index.html", "utf8");
 assert.ok(html.includes('type="module" src="src/app.js"'), "HTML loads app module");
@@ -113,9 +114,12 @@ assert.ok(exportDoc.includes("Do not export secrets"), "export doc includes sani
 assert.ok(exportDoc.includes("github-cli-issues.json"), "export doc links issues preset fixture");
 assert.ok(exportDoc.includes("github-cli-pull-requests.json"), "export doc links pull request preset fixture");
 assert.ok(exportDoc.includes("github-cli-mixed-queue.json"), "export doc links mixed preset fixture");
+assert.ok(exportDoc.includes("github-search-prs.json"), "export doc links gh search fixture");
+assert.ok(exportDoc.includes("gh search prs"), "export doc includes PR search export command");
 assert.ok(exportDoc.includes("issues") && exportDoc.includes("pullRequests"), "export doc explains mixed queue shape");
 
 const maintenanceLog = await readFile("docs/maintenance-log.md", "utf8");
+assert.ok(maintenanceLog.includes("GitHub search PR import maintenance"), "maintenance log records search PR import work");
 assert.ok(maintenanceLog.includes("keyboard shortcut maintenance"), "maintenance log records keyboard shortcut work");
 assert.ok(maintenanceLog.includes("drill queue maintenance"), "maintenance log records drill queue work");
 assert.ok(maintenanceLog.includes("v0.3.0 maintenance rounds"), "maintenance log records this release");
@@ -133,7 +137,8 @@ assert.ok(!JSON.stringify(edgeCaseFixture).includes("github.com/"), "edge-case f
 const githubCliFixtures = [
   "tests/fixtures/github-cli-issues.json",
   "tests/fixtures/github-cli-pull-requests.json",
-  "tests/fixtures/github-cli-mixed-queue.json"
+  "tests/fixtures/github-cli-mixed-queue.json",
+  "tests/fixtures/github-search-prs.json"
 ];
 for (const file of githubCliFixtures) {
   const fixtureText = await readFile(file, "utf8");

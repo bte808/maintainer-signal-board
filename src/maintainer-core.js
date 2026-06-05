@@ -673,7 +673,7 @@ function normalizeItem(item, index, now) {
   const updatedAt = parseDate(item.updatedAt || item.updated_at || item.updated || item.updatedDate, createdAt);
   const assignees = normalizePeople(item.assignees ?? item.assignee ?? []);
   const number = Number(item.number ?? item.issueNumber ?? item.pullRequestNumber ?? item.id ?? index + 1);
-  const state = String(item.state || "open").toLowerCase();
+  const state = normalizeState(item.state);
   const repository = normalizeRepository(item.repository || item.repositoryName || item.repo || "");
   const prefix = type === "pr" ? "PR" : "ISSUE";
 
@@ -898,6 +898,12 @@ function normalizeMilestone(value) {
   if (!value) return "";
   if (typeof value === "string") return value;
   return value.title || value.name || "";
+}
+
+function normalizeState(value) {
+  const state = String(value || "open").toLowerCase();
+  if (["closed", "merged"].includes(state)) return "closed";
+  return state || "open";
 }
 
 function normalizeRepository(value) {

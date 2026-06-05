@@ -1,0 +1,29 @@
+[
+  {
+    "number": 1001,
+    "url": "https://github.com/example-org/example-repo/pull/1001",
+    "title": "Docs review queue needs maintainer pass",
+    "repository": {
+      "nameWithOwner": "example-org/example-repo"
+    },
+    "updatedAt": "2026-06-04T10:00:00Z",
+    "state": "OPEN",
+    "isDraft": false
+  },
+  {
+    "number": 1002,
+    "url": "https://github.com/example-org/example-repo/pull/1002",
+    "title": "Merged dependency docs polish",
+    "labels": [
+      {
+        "name": "dependencies"
+      }
+    ],
+    "repository": {
+      "nameWithOwner": "example-org/example-repo"
+    },
+    "updatedAt": "2026-06-03T10:00:00Z",
+    "state": "MERGED",
+    "isDraft": false
+  }
+]

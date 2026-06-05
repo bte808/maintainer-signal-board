@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.1 - 2026-06-05
+
+- Added a `gh search prs --json ...` fixture for cross-repository maintainer review sweeps.
+- Treated merged GitHub search rows as closed queue work so they do not inflate open maintainer load.
+- Documented the search-result export command and kept the fixture synthetic.
+- Expanded core and static checks for the new import shape.
+
 ## 0.7.0 - 2026-06-05
 
 - Added saved view presets for recurring maintainer rituals.

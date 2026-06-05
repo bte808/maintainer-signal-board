@@ -2,6 +2,30 @@
 
 This log records verified maintainer rounds for small public releases. It is intentionally factual: no adoption claims, no external endorsement claims, and no private queue data.
 
+## 2026-06-05 - GitHub search PR import maintenance
+
+1. Search-result import
+   - Added a synthetic `gh search prs --json ...` fixture for cross-repository review sweeps.
+   - Documented a public-field-only search export command for maintainers who review PRs across repos.
+
+2. Merged-state filtering
+   - Normalized `MERGED` search rows to closed queue work.
+   - Added a regression assertion so merged PRs do not inflate open maintainer load.
+
+3. Verification
+   - Expanded static checks to require the new fixture and export recipe note.
+   - Kept the fixture scoped to neutral `example-org/example-repo` data.
+
+Verification for this round:
+
+```bash
+npm test
+node --check src/maintainer-core.js
+node --check tests/core.test.mjs
+node --check scripts/check.mjs
+git diff --check
+```
+
 ## 2026-06-05 - saved view preset maintenance
 
 1. View presets
