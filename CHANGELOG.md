@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0 - 2026-06-05
+
+- Added saved view presets for recurring maintainer rituals.
+- Stored presets locally under the documented `maintainer-signal-board-presets-v1` key without adding backend, analytics, account, token, or runtime dependencies.
+- Kept Share URLs focused on the active board view and out of the full saved preset list.
+- Expanded static and browser verification for saving, loading, and deleting one preset.
+
 ## 0.6.0 - 2026-06-05
 
 - Added keyboard shortcuts for repeated lane review: next lane, previous lane, compact-view toggle, and maintainer brief copy.

@@ -2,6 +2,28 @@
 
 This log records verified maintainer rounds for small public releases. It is intentionally factual: no adoption claims, no external endorsement claims, and no private queue data.
 
+## 2026-06-05 - saved view preset maintenance
+
+1. View presets
+   - Added local save, load, and delete controls for recurring maintainer review setups.
+   - Presets store capacity, scoring profile, scoring weights, lane filter, and compact-view state.
+   - Presets do not store pasted queue text, evidence-log entries, exports, tokens, account data, or the full preset list in Share URLs.
+
+2. Local-first storage
+   - Documented `maintainer-signal-board-v1`, `maintainer-signal-board-log-v1`, and `maintainer-signal-board-presets-v1`.
+   - Kept runtime dependencies at zero and did not add a backend, analytics script, account system, or API key flow.
+
+3. Browser verification
+   - Expanded desktop and mobile browser checks to save, load, and delete one view preset.
+   - Kept the mobile overflow check at `390 x 844`.
+
+Verification for this round:
+
+```bash
+npm run validate
+git diff --check
+```
+
 ## 2026-06-05 - keyboard shortcut maintenance
 
 1. Lane review shortcuts

@@ -224,6 +224,39 @@ async function runViewportCheck(cdp, viewport) {
       byTest('weight-profile').dispatchEvent(new Event('change', { bubbles: true }));
       byTest('apply-profile').click();
       const dependencyProfileApplied = byTest('weight-dependency-risk').value === '70';
+      byTest('lane-filter').value = 'Dependency risk';
+      byTest('lane-filter').dispatchEvent(new Event('change', { bubbles: true }));
+      byTest('compact-view').checked = true;
+      byTest('compact-view').dispatchEvent(new Event('change', { bubbles: true }));
+      byTest('preset-name').value = 'Dependency ritual';
+      byTest('save-preset').click();
+      const savedPresetId = byTest('preset-select').value;
+      const presetCountAfterSave = byTest('preset-select').querySelectorAll('option[value]:not([value=""])').length;
+      byTest('capacity-hours').value = '8';
+      byTest('capacity-hours').dispatchEvent(new Event('input', { bubbles: true }));
+      byTest('weight-profile').value = 'balanced';
+      byTest('weight-profile').dispatchEvent(new Event('change', { bubbles: true }));
+      byTest('apply-profile').click();
+      byTest('lane-filter').value = 'all';
+      byTest('lane-filter').dispatchEvent(new Event('change', { bubbles: true }));
+      byTest('compact-view').checked = false;
+      byTest('compact-view').dispatchEvent(new Event('change', { bubbles: true }));
+      byTest('preset-select').value = savedPresetId;
+      byTest('load-preset').click();
+      const presetLoaded =
+        byTest('capacity-hours').value === '3' &&
+        byTest('weight-profile').value === 'dependency' &&
+        byTest('weight-dependency-risk').value === '70' &&
+        byTest('lane-filter').value === 'Dependency risk' &&
+        byTest('compact-view').checked;
+      byTest('share-url').click();
+      const boardParam = new URLSearchParams(window.location.hash.slice(1)).get('board') || '';
+      const base64 = boardParam.replaceAll('-', '+').replaceAll('_', '/').padEnd(Math.ceil(boardParam.length / 4) * 4, '=');
+      const decodedShare = decodeURIComponent(escape(atob(base64)));
+      const shareExcludesPresetList = !decodedShare.includes('Dependency ritual') && !decodedShare.includes('presets');
+      byTest('delete-preset').click();
+      const presetCountAfterDelete = byTest('preset-select').querySelectorAll('option[value]:not([value=""])').length;
+      const presetsStorageAfterDelete = JSON.parse(localStorage.getItem('maintainer-signal-board-presets-v1') || '[]').length;
       byTest('weight-dependency-risk').value = '72';
       byTest('weight-dependency-risk').dispatchEvent(new Event('input', { bubbles: true }));
       byTest('reset-weights').click();
@@ -293,6 +326,11 @@ async function runViewportCheck(cdp, viewport) {
         weightInputs: byTest('scoring-weights').querySelectorAll('input').length,
         profileOptions: byTest('weight-profile').querySelectorAll('option').length,
         dependencyProfileApplied,
+        presetCountAfterSave,
+        presetLoaded,
+        shareExcludesPresetList,
+        presetCountAfterDelete,
+        presetsStorageAfterDelete,
         dependencyWeightReset: byTest('weight-dependency-risk').value === '24',
         shareHashReady: window.location.hash.startsWith('#board='),
         shortcutFirstLane,
@@ -315,6 +353,7 @@ async function runViewportCheck(cdp, viewport) {
     })()`
   );
 
+  await cdp.send("Runtime.evaluate", { expression: "window.scrollTo(0, 0)" }, sessionId);
   const screenshotResult = await cdp.send(
     "Page.captureScreenshot",
     { format: "png", captureBeyondViewport: false },
@@ -340,6 +379,11 @@ async function runViewportCheck(cdp, viewport) {
     details.weightInputs === 9 &&
     details.profileOptions >= 6 &&
     details.dependencyProfileApplied &&
+    details.presetCountAfterSave >= 1 &&
+    details.presetLoaded &&
+    details.shareExcludesPresetList &&
+    details.presetCountAfterDelete === 0 &&
+    details.presetsStorageAfterDelete === 0 &&
     details.dependencyWeightReset &&
     details.shareHashReady &&
     details.shortcutFirstLane === "Security and quality" &&

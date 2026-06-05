@@ -52,6 +52,19 @@
           </label>
           <button type="button" data-testid="apply-profile">Apply preset</button>
         </div>
+        <div class="preset-row">
+          <label>
+            <span>View preset name</span>
+            <input data-testid="preset-name" type="text" maxlength="48" autocomplete="off" />
+          </label>
+          <button type="button" data-testid="save-preset">Save view</button>
+          <label>
+            <span>Saved views</span>
+            <select data-testid="preset-select"></select>
+          </label>
+          <button type="button" data-testid="load-preset">Load</button>
+          <button type="button" data-testid="delete-preset">Delete</button>
+        </div>
         <div class="weights-grid" data-testid="scoring-weights"></div>
       </section>
 

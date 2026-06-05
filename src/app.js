@@ -11,6 +11,7 @@ import {
 
 const STORAGE_KEY = "maintainer-signal-board-v1";
 const LOG_KEY = "maintainer-signal-board-log-v1";
+const PRESETS_KEY = "maintainer-signal-board-presets-v1";
 const DEFAULT_PROFILE_ID = "balanced";
 const WEIGHT_FIELDS = [
   { key: "security", label: "Security", min: 0, max: 100 },
@@ -33,6 +34,11 @@ const elements = {
   capacity: document.querySelector("[data-testid='capacity-hours']"),
   profile: document.querySelector("[data-testid='weight-profile']"),
   applyProfile: document.querySelector("[data-testid='apply-profile']"),
+  presetName: document.querySelector("[data-testid='preset-name']"),
+  presetSelect: document.querySelector("[data-testid='preset-select']"),
+  savePreset: document.querySelector("[data-testid='save-preset']"),
+  loadPreset: document.querySelector("[data-testid='load-preset']"),
+  deletePreset: document.querySelector("[data-testid='delete-preset']"),
   weights: document.querySelector("[data-testid='scoring-weights']"),
   resetWeights: document.querySelector("[data-testid='reset-weights']"),
   input: document.querySelector("[data-testid='queue-input']"),
@@ -90,6 +96,10 @@ function bindControls() {
     saveState();
     runAnalysis("Profile applied");
   });
+
+  elements.savePreset.addEventListener("click", saveViewPreset);
+  elements.loadPreset.addEventListener("click", loadSelectedPreset);
+  elements.deletePreset.addEventListener("click", deleteSelectedPreset);
 
   elements.weights.addEventListener("input", (event) => {
     const key = event.target.dataset.weightKey;
@@ -158,6 +168,7 @@ function renderInitial() {
   elements.capacity.value = state.capacityHours;
   elements.compactView.checked = Boolean(state.compactView);
   renderWeightControls();
+  renderPresetControls();
   elements.input.value = state.queueText;
   runAnalysis("Ready");
   renderEvidenceLog();
@@ -273,6 +284,72 @@ function renderWeightControls() {
       </label>
     `;
   }).join("");
+}
+
+function renderPresetControls(selectedId = elements.presetSelect.value) {
+  const presets = getViewPresets();
+  elements.presetSelect.innerHTML = presets.length
+    ? presets.map((preset) => option(preset.id, preset.name, selectedId)).join("")
+    : '<option value="">No saved views</option>';
+  const hasPresets = presets.length > 0;
+  elements.loadPreset.disabled = !hasPresets;
+  elements.deletePreset.disabled = !hasPresets;
+  if (hasPresets && !presets.some((preset) => preset.id === elements.presetSelect.value)) {
+    elements.presetSelect.value = presets[0].id;
+  }
+}
+
+function saveViewPreset() {
+  const name = elements.presetName.value.trim().slice(0, 48);
+  if (!name) {
+    setStatus("Name the view");
+    elements.presetName.focus();
+    return;
+  }
+
+  const presets = getViewPresets().filter((preset) => preset.name.toLowerCase() !== name.toLowerCase());
+  const preset = {
+    v: 1,
+    id: makePresetId(name),
+    name,
+    updatedAt: new Date().toISOString(),
+    capacityHours: state.capacityHours,
+    profileId: state.profileId,
+    weights: normalizeWeightState(state.weights),
+    laneFilter: state.laneFilter,
+    compactView: Boolean(state.compactView)
+  };
+  presets.unshift(preset);
+  writeViewPresets(presets.slice(0, 12));
+  elements.presetName.value = "";
+  renderPresetControls(preset.id);
+  setStatus("View saved");
+}
+
+function loadSelectedPreset() {
+  const preset = getViewPresets().find((item) => item.id === elements.presetSelect.value);
+  if (!preset) return;
+  state.capacityHours = preset.capacityHours || SAMPLE_QUEUES[0].capacityHours;
+  state.profileId = WEIGHT_PROFILES[preset.profileId] ? preset.profileId : "custom";
+  state.weights = normalizeWeightState(preset.weights);
+  state.laneFilter = preset.laneFilter || "all";
+  state.compactView = Boolean(preset.compactView);
+  elements.capacity.value = state.capacityHours;
+  elements.profile.value = state.profileId;
+  elements.compactView.checked = state.compactView;
+  renderWeightControls();
+  saveState();
+  if (latestAnalysis) renderAnalysis(latestAnalysis);
+  setStatus("View loaded");
+}
+
+function deleteSelectedPreset() {
+  const selectedId = elements.presetSelect.value;
+  if (!selectedId) return;
+  const presets = getViewPresets().filter((preset) => preset.id !== selectedId);
+  writeViewPresets(presets);
+  renderPresetControls();
+  setStatus("View deleted");
 }
 
 function addEvidenceLog() {
@@ -431,6 +508,34 @@ function getEvidenceLog() {
   }
 }
 
+function getViewPresets() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PRESETS_KEY));
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((preset) => preset && preset.v === 1 && typeof preset.name === "string")
+      .map((preset) => ({
+        ...preset,
+        id: preset.id || makePresetId(preset.name),
+        name: preset.name.slice(0, 48),
+        weights: normalizeWeightState(preset.weights),
+        laneFilter: preset.laneFilter || "all",
+        compactView: Boolean(preset.compactView)
+      }))
+      .slice(0, 12);
+  } catch {
+    return [];
+  }
+}
+
+function writeViewPresets(presets) {
+  try {
+    localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+  } catch {
+    // Private windows may block storage.
+  }
+}
+
 function normalizeWeightState(input) {
   const weights = { ...DEFAULT_WEIGHTS };
   if (!input || typeof input !== "object") return weights;
@@ -495,6 +600,11 @@ function weightTestId(key) {
 
 function clampNumber(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function makePresetId(name) {
+  const slug = name.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-").replaceAll(/^-|-$/g, "") || "view";
+  return `${slug}-${Date.now().toString(36)}`;
 }
 
 function downloadFile(filename, content, type) {

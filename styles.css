@@ -144,6 +144,15 @@ h3 {
   padding: 12px 12px 0;
 }
 
+.preset-row {
+  display: grid;
+  grid-template-columns: minmax(200px, 280px) minmax(110px, 140px) minmax(200px, 280px) minmax(86px, 110px) minmax(86px, 110px);
+  gap: 10px;
+  align-items: end;
+  justify-content: start;
+  padding: 12px 12px 0;
+}
+
 .weights-grid label {
   min-width: 0;
 }
@@ -545,6 +554,14 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .preset-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .preset-row label {
+    grid-column: 1 / -1;
+  }
+
   .board-controls {
     grid-template-columns: 1fr;
   }
@@ -573,6 +590,10 @@ textarea {
   }
 
   .weights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .preset-row {
     grid-template-columns: 1fr;
   }
 }

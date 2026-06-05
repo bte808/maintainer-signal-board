@@ -14,7 +14,7 @@ Live demo: <https://bte808.github.io/maintainer-signal-board/>
 
 ## Project Status
 
-Maintainer Signal Board is an early `v0.6.0` static OSS tool. It is built to demonstrate a practical maintainer workflow, not to claim broad adoption or critical ecosystem status. The sample data is synthetic, and this project is not affiliated with OpenAI or endorsed by OpenAI.
+Maintainer Signal Board is an early `v0.7.0` static OSS tool. It is built to demonstrate a practical maintainer workflow, not to claim broad adoption or critical ecosystem status. The sample data is synthetic, and this project is not affiliated with OpenAI or endorsed by OpenAI.
 
 Maintenance signals:
 
@@ -24,6 +24,7 @@ Maintenance signals:
 - Core scoring tests and desktop/mobile browser verification.
 - Adjustable scoring weights for different maintainer styles.
 - Preset scoring profiles for balanced, release, review, dependency, and community queues.
+- Saved view presets for recurring review rituals.
 - Shareable local queue URLs stored in the browser URL hash.
 - Dependency-risk heuristics for dependency and lockfile triage.
 - Synthetic drill queues for release candidate, security hardening, and dependency review practice.
@@ -50,6 +51,7 @@ It is useful for:
 - Normalizes common GitHub-style fields such as `number`, `type`, `labels`, `created_at`, `updated_at`, `review_decision`, `mergeable`, `draft`, and `milestone`.
 - Scores queue items from visible signals: security/privacy wording, release blockers, dependency-risk wording, stale age, review state, ownership, discussion load, and merge readiness.
 - Lets maintainers apply scoring profiles, adjust scoring weights, and reset to documented defaults.
+- Saves, loads, and deletes local view presets containing capacity, scoring profile, weights, lane filter, and compact-view settings.
 - Creates shareable local URLs for synthetic or sanitized queues without sending data to a server.
 - Filters the board to a single maintainer lane and offers a compact view for larger queues.
 - Supports keyboard shortcuts for repeated lane review when no form field is focused.
@@ -89,6 +91,16 @@ Shortcuts are inactive while an input, textarea, select, button, or editable reg
 - `Alt+ArrowLeft`: move focus to the previous visible lane.
 - `Alt+C`: toggle compact view.
 - `Alt+B`: copy the current maintainer brief.
+
+## Saved View Presets
+
+Saved view presets store only capacity, scoring profile, scoring weights, lane filter, and compact-view settings. They do not store the pasted queue, evidence log, exports, account data, tokens, or the full preset list inside Share URLs.
+
+The documented local browser storage keys are:
+
+- `maintainer-signal-board-v1` for the current draft queue and active view.
+- `maintainer-signal-board-log-v1` for the local evidence log.
+- `maintainer-signal-board-presets-v1` for saved view presets.
 
 ## Input Shape
 
@@ -171,13 +183,9 @@ SAVE_SCREENSHOT=docs/demo.png npm run verify:browser
 - [Security policy](SECURITY.md)
 - [Code of conduct](CODE_OF_CONDUCT.md)
 
-## Roadmap
-
-- Add [saved view presets for recurring maintainer rituals](https://github.com/bte808/maintainer-signal-board/issues/12).
-
 ## Security and Privacy
 
-Maintainer Signal Board does not require an account, API key, backend service, analytics script, or hosted font. Draft input and evidence-log entries stay in browser `localStorage`; exports are generated locally.
+Maintainer Signal Board does not require an account, API key, backend service, analytics script, or hosted font. Draft input, evidence-log entries, and saved view presets stay in browser `localStorage`; exports are generated locally.
 
 For security-sensitive reports, follow [SECURITY.md](SECURITY.md) and avoid posting sensitive details publicly.
 

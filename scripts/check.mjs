@@ -41,7 +41,7 @@ const pkg = JSON.parse(await readFile("package.json", "utf8"));
 assert.deepEqual(pkg.dependencies || {}, {}, "runtime dependencies stay empty");
 assert.equal(pkg.private, false, "package is publishable metadata");
 assert.equal(pkg.license, "MIT");
-assert.equal(pkg.version, "0.6.0");
+assert.equal(pkg.version, "0.7.0");
 
 const html = await readFile("index.html", "utf8");
 assert.ok(html.includes('type="module" src="src/app.js"'), "HTML loads app module");
@@ -53,6 +53,11 @@ assert.ok(html.includes("data-testid=\"weight-profile\""), "weight profile selec
 assert.ok(html.includes("data-testid=\"share-url\""), "share URL action is wired");
 assert.ok(html.includes("data-testid=\"lane-filter\""), "lane filter is wired");
 assert.ok(html.includes("data-testid=\"compact-view\""), "compact view toggle is wired");
+assert.ok(html.includes("data-testid=\"preset-name\""), "view preset name input is wired");
+assert.ok(html.includes("data-testid=\"save-preset\""), "save preset button is wired");
+assert.ok(html.includes("data-testid=\"preset-select\""), "saved preset selector is wired");
+assert.ok(html.includes("data-testid=\"load-preset\""), "load preset button is wired");
+assert.ok(html.includes("data-testid=\"delete-preset\""), "delete preset button is wired");
 assert.ok(!html.includes("Alt+"), "shortcut help stays out of the app shell");
 
 const css = await readFile("styles.css", "utf8");
@@ -62,10 +67,16 @@ assert.ok(css.includes(".lane:focus"), "keyboard-focused lanes have visible focu
 assert.ok(!css.includes("letter-spacing: -"), "no negative letter spacing");
 
 const app = await readFile("src/app.js", "utf8");
+assert.ok(app.includes("maintainer-signal-board-v1"), "draft queue localStorage key is documented in code");
+assert.ok(app.includes("maintainer-signal-board-log-v1"), "evidence log localStorage key is documented in code");
+assert.ok(app.includes("maintainer-signal-board-presets-v1"), "view preset localStorage key is documented in code");
 assert.ok(app.includes("handleKeyboardShortcut"), "keyboard shortcut handler is wired");
 assert.ok(app.includes("focusAdjacentLane"), "lane navigation shortcut helper exists");
 assert.ok(app.includes("toggleCompactViewShortcut"), "compact shortcut helper exists");
 assert.ok(app.includes("writeClipboardWithTimeout"), "copy shortcut has clipboard fallback timeout");
+assert.ok(app.includes("saveViewPreset"), "view preset save helper exists");
+assert.ok(app.includes("loadSelectedPreset"), "view preset load helper exists");
+assert.ok(app.includes("deleteSelectedPreset"), "view preset delete helper exists");
 assert.ok(app.includes("ArrowRight") && app.includes("ArrowLeft"), "lane navigation shortcuts are defined");
 
 const readme = await readFile("README.md", "utf8");
@@ -84,6 +95,8 @@ assert.ok(readme.includes("Release candidate drill"), "README documents the rele
 assert.ok(readme.includes("Security hardening drill"), "README documents the security hardening drill");
 assert.ok(readme.includes("Dependency review drill"), "README documents the dependency review drill");
 assert.ok(readme.includes("Keyboard Shortcuts"), "README documents shortcuts");
+assert.ok(readme.includes("Saved View Presets"), "README documents saved view presets");
+assert.ok(readme.includes("maintainer-signal-board-presets-v1"), "README documents the view preset storage key");
 assert.ok(readme.includes("Alt+ArrowRight") && readme.includes("Alt+C") && readme.includes("Alt+B"), "README lists shortcut coverage");
 
 const core = await readFile("src/maintainer-core.js", "utf8");
